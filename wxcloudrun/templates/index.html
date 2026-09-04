@@ -5,6 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我们的相册</title>
+
+    <!-- Open Graph / 微信分享卡片 meta 标签 -->
+    <meta property="og:title" content="我们的相册">
+    <meta property="og:description" content="每一刻都值得珍藏">
+    <meta property="og:image" content="" id="ogImage">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="website">
+
     <style>
         * {
             margin: 0;
@@ -196,6 +204,9 @@
         <div class="lightbox-counter" id="lightboxCounter"></div>
     </div>
 
+    <!-- 微信 JS-SDK -->
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+
     <script>
         // ========== 照片数据（替换为你的真实照片URL） ==========
         const photos = [
@@ -216,6 +227,42 @@
             { url: 'https://picsum.photos/seed/15/400/400', title: '照片 15' },
             { url: 'https://picsum.photos/seed/16/400/400', title: '照片 16' },
         ];
+
+        // ========== 微信 JS-SDK 分享配置 ==========
+        (function setupWxShare() {
+            var shareUrl = window.location.href.split('#')[0];
+            document.getElementById('ogImage').content = photos[0].url;
+            document.querySelector('meta[property="og:url"]').content = shareUrl;
+
+            fetch('/api/wx/share', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: shareUrl })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(res) {
+                if (res.code !== 0) {
+                    console.warn('JS-SDK未配置: ' + res.errorMsg);
+                    return;
+                }
+                var cfg = res.data;
+                wx.config({
+                    debug: false,
+                    appId: cfg.appId,
+                    timestamp: cfg.timestamp,
+                    nonceStr: cfg.nonceStr,
+                    signature: cfg.signature,
+                    jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData']
+                });
+                wx.ready(function() {
+                    var info = { title: '我们的相册', desc: '每一刻都值得珍藏', link: shareUrl, imgUrl: photos[0].url };
+                    wx.updateAppMessageShareData(info);
+                    wx.updateTimelineShareData({ title: info.title, link: info.link, imgUrl: info.imgUrl });
+                });
+                wx.error(function(err) { console.warn('wx.config失败:', err); });
+            })
+            .catch(function(err) { console.warn('签名请求失败:', err); });
+        })();
 
         // ========== 渲染相册 ==========
         const gallery = document.getElementById('gallery');
