@@ -1,5 +1,6 @@
 {
-  "navigationBarTitleText": "我们的相册",
-  "enablePullDownRefresh": true,
-  "backgroundTextStyle": "dark"
+  "navigationBarTitleText": "婚礼邀请函",
+  "navigationBarBackgroundColor": "#faf7f2",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#faf7f2"
 }

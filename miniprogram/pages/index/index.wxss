@@ -1,74 +1,358 @@
-/* 页面容器 */
+/* ========== 基础 ========== */
 .page {
   min-height: 100vh;
-  background: #f8f8f8;
+  background: #faf7f2;
+  color: #5a4a3a;
 }
 
-/* ========== 头部 ========== */
-.header {
-  padding: 24rpx 32rpx;
+/* ========== 背景音乐按钮 ========== */
+.music {
+  position: fixed;
+  top: 120rpx;
+  right: 28rpx;
+  z-index: 999;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 50%;
+  background: rgba(201, 168, 106, 0.9);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.music-icon {
+  font-size: 40rpx;
+}
+
+.music-playing {
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ========== ① 首屏 ========== */
+.hero {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #e9e2d5;
+}
+
+.hero-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.45) 100%);
+}
+
+.hero-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.4);
+  padding-bottom: 80rpx;
+}
+
+.hero-date {
+  font-size: 28rpx;
+  letter-spacing: 8rpx;
+  opacity: 0.9;
+}
+
+.hero-names {
+  font-size: 72rpx;
+  font-weight: 300;
+  letter-spacing: 10rpx;
+  margin-top: 28rpx;
+  font-family: "STSong", "SimSun", serif;
+}
+
+.heart {
+  font-size: 48rpx;
+  margin: 0 8rpx;
+}
+
+.hero-divider {
+  width: 320rpx;
+  height: 1rpx;
+  background: rgba(255, 255, 255, 0.7);
+  margin: 36rpx 0 24rpx;
+}
+
+.hero-sub {
+  font-size: 26rpx;
+  letter-spacing: 4rpx;
+  opacity: 0.9;
+}
+
+.hero-invite {
+  font-size: 30rpx;
+  letter-spacing: 6rpx;
+  margin-top: 20rpx;
+}
+
+.hero-arrow {
+  position: absolute;
+  bottom: 40rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 44rpx;
+  animation: bounce 1.6s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, 14rpx); }
+}
+
+/* ========== 通用区块 ========== */
+.section {
+  padding: 72rpx 48rpx 0;
+}
+
+.section-title {
   text-align: center;
-  background: #ffffff;
-  border-bottom: 1rpx solid rgba(0, 0, 0, 0.06);
+  font-size: 34rpx;
+  letter-spacing: 8rpx;
+  color: #c9a86a;
+  margin-bottom: 36rpx;
+  position: relative;
 }
 
-.header-title {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #1a1a1a;
+.section-title::before,
+.section-title::after {
+  content: '';
+  display: inline-block;
+  width: 56rpx;
+  height: 1rpx;
+  background: #d8c8a8;
+  vertical-align: middle;
+  margin: 0 20rpx;
+}
+
+/* ========== ② 邀请函 ========== */
+.invite-card {
+  background: #ffffff;
+  border: 1rpx solid #eee4d2;
+  border-radius: 16rpx;
+  padding: 56rpx 48rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.08);
+}
+
+.invite-line {
+  font-size: 28rpx;
+  line-height: 2.2;
   letter-spacing: 2rpx;
 }
 
-.header-subtitle {
-  font-size: 24rpx;
-  color: #999999;
+.invite-sign {
+  margin-top: 40rpx;
+  font-size: 26rpx;
+  color: #c9a86a;
+  letter-spacing: 3rpx;
+}
+
+/* ========== ③ 倒计时 ========== */
+.countdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cd-box {
+  background: #ffffff;
+  border: 1rpx solid #eee4d2;
+  border-radius: 12rpx;
+  width: 128rpx;
+  padding: 24rpx 0 18rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(201, 168, 106, 0.1);
+}
+
+.cd-num {
+  font-size: 48rpx;
+  color: #5a4a3a;
+  font-weight: 600;
+}
+
+.cd-label {
+  font-size: 22rpx;
+  color: #b0a28c;
   margin-top: 6rpx;
 }
 
-/* ========== 相册网格（4列） ========== */
+.cd-sep {
+  font-size: 40rpx;
+  color: #c9a86a;
+  margin: 0 14rpx;
+  padding-bottom: 30rpx;
+}
+
+.married-text {
+  text-align: center;
+  font-size: 28rpx;
+  line-height: 2;
+  padding: 24rpx 0;
+}
+
+/* ========== ④ 照片轮播 ========== */
+.story-swiper {
+  height: 480rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  transform: translateY(0); /* 修复 swiper 圆角在部分机型失效 */
+}
+
+.story-img {
+  width: 100%;
+  height: 100%;
+  background: #e9e2d5;
+}
+
+/* ========== ⑤ 相册网格 ========== */
 .gallery {
   display: flex;
   flex-wrap: wrap;
-  padding: 4rpx 0;
+  margin: 0 -3rpx;
 }
 
 .gallery-item {
   width: 25%;
-  height: 187rpx;
-  padding: 2rpx;
+  height: 168rpx;
+  padding: 3rpx;
   box-sizing: border-box;
-  background: #e8e8e8;
 }
 
-.gallery-item-hover {
-  opacity: 0.85;
+.gallery-hover {
+  opacity: 0.8;
 }
 
 .gallery-img {
   width: 100%;
   height: 100%;
   display: block;
+  background: #e9e2d5;
+  border-radius: 6rpx;
 }
 
-/* ========== 加载占位 ========== */
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 120rpx 0;
+/* ========== ⑥ 婚礼地点 ========== */
+.venue-card {
+  background: #ffffff;
+  border: 1rpx solid #eee4d2;
+  border-radius: 16rpx;
+  padding: 48rpx 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.08);
 }
 
-.loading-text {
+.venue-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #5a4a3a;
+}
+
+.venue-addr {
   font-size: 26rpx;
-  color: #bbbbbb;
-  letter-spacing: 2rpx;
+  color: #9a8a75;
+  margin-top: 14rpx;
+  line-height: 1.8;
 }
 
-/* ========== 底部信息 ========== */
+.venue-time {
+  font-size: 26rpx;
+  color: #5a4a3a;
+  margin-top: 20rpx;
+}
+
+.venue-lunar {
+  color: #b0a28c;
+  margin-left: 12rpx;
+  font-size: 24rpx;
+}
+
+.btn-row {
+  display: flex;
+  margin-top: 40rpx;
+}
+
+/* ========== ⑦ 祝福 ========== */
+.bless-card {
+  background: #ffffff;
+  border: 1rpx solid #eee4d2;
+  border-radius: 16rpx;
+  padding: 48rpx 40rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.08);
+}
+
+.bless-count {
+  font-size: 28rpx;
+  color: #9a8a75;
+}
+
+.bless-num {
+  color: #c9a86a;
+  font-size: 40rpx;
+  font-weight: 600;
+  margin: 0 6rpx;
+}
+
+.bless-btn {
+  margin-top: 32rpx;
+  width: 60%;
+}
+
+/* ========== 按钮 ========== */
+.btn {
+  font-size: 28rpx;
+  border-radius: 44rpx;
+  line-height: 2.6;
+  padding: 0 32rpx;
+  margin: 0;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-gold {
+  flex: 1;
+  background: linear-gradient(135deg, #d8b57c 0%, #c9a86a 100%);
+  color: #ffffff;
+  letter-spacing: 3rpx;
+  box-shadow: 0 6rpx 20rpx rgba(201, 168, 106, 0.35);
+}
+
+.btn-line {
+  flex: 1;
+  margin-left: 24rpx;
+  background: #ffffff;
+  color: #c9a86a;
+  border: 1rpx solid #d8c8a8;
+  letter-spacing: 3rpx;
+  box-sizing: border-box;
+}
+
+/* ========== 底部 ========== */
 .footer {
   text-align: center;
-  padding: 48rpx 32rpx 64rpx;
-  color: #bbbbbb;
-  font-size: 24rpx;
-  letter-spacing: 1rpx;
+  padding: 72rpx 32rpx 88rpx;
+  color: #b0a28c;
+  font-size: 26rpx;
+  letter-spacing: 4rpx;
 }
