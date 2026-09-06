@@ -72,6 +72,16 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/MP_verify_<code>.txt')
+def mp_verify(code):
+    """
+    微信公众号「JS接口安全域名」校验文件。
+    微信要求域名根路径下能访问 MP_verify_xxx.txt，且文件内容就是文件名中的 xxx。
+    动态返回，无需手动放置文件。
+    """
+    return code
+
+
 @app.route('/api/wx/share', methods=['POST'])
 def wx_share():
     """
@@ -108,6 +118,10 @@ def wx_share():
         'timestamp': timestamp,
         'nonceStr': nonce_str,
         'signature': signature,
+        # 分享卡片文案（在云托管「服务设置-环境变量」中配置 SHARE_TITLE / SHARE_DESC / SHARE_IMG 即可修改）
+        'shareTitle': config.SHARE_TITLE,
+        'shareDesc': config.SHARE_DESC,
+        'shareImg': config.SHARE_IMG,
     })
 
 

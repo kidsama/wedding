@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-page-node-id="rRGWpm5OtQYeHAT9hPni46">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<head data-page-node-id="O3XlmpizGGaXPSLJ10pHAn">
+    <meta charset="UTF-8" data-page-node-id="Y9nUV5Q5xeRzhzGfm3zBRa">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="4rKqgjUaT8Gu3vGZuCLFYV">
     <title>我们的相册</title>
 
     <!-- Open Graph / 微信分享卡片 meta 标签 -->
-    <meta property="og:title" content="我们的相册">
-    <meta property="og:description" content="每一刻都值得珍藏">
-    <meta property="og:image" content="" id="ogImage">
-    <meta property="og:url" content="">
-    <meta property="og:type" content="website">
+    <meta property="og:title" content="我们的相册" data-page-node-id="UhiKEQUcLf6gUr0VCJ5dW4">
+    <meta property="og:description" content="每一刻都值得珍藏" data-page-node-id="7UtsV4ocJ22AG0V261OIWa">
+    <meta property="og:image" content="" id="ogImage" data-page-node-id="ekL5YWeiXfRtVQvpmAo6O8">
+    <meta property="og:url" content="" data-page-node-id="AArbDL0hU9Eya8yyEMCXoH">
+    <meta property="og:type" content="website" data-page-node-id="nzSkwWioV9McD6AiBgjAfS">
 
     <style>
         * {
@@ -183,25 +183,25 @@
     </style>
 </head>
 
-<body>
+<body data-page-node-id="VErBTSmoBdfKrfQqmknYtL">
 
     <!-- 头部 -->
-    <div class="header">
-        <div class="header-title">📷 我们的相册</div>
-        <div class="header-subtitle">每一刻都值得珍藏</div>
+    <div class="header" data-page-node-id="zRx9GKKsjalGiGqwS70K0v">
+        <div class="header-title" data-page-node-id="ax5rX7XVIn4Ft5fS35QlBc">📷 我们的相册</div>
+        <div class="header-subtitle" data-page-node-id="DXqKi353xHfqThq3HSigXV">每一刻都值得珍藏</div>
     </div>
 
     <!-- 相册网格 -->
-    <div class="gallery" id="gallery"></div>
+    <div class="gallery" id="gallery" data-page-node-id="jkKD0DnIL9KvFlVDCpB1kg"></div>
 
     <!-- 底部 -->
-    <div class="footer">❤ 美好时光 · 永久珍藏 ❤</div>
+    <div class="footer" data-page-node-id="lBEDHqbZNFuHazzUkfv3hE">❤ 美好时光 · 永久珍藏 ❤</div>
 
     <!-- 灯箱 -->
-    <div class="lightbox" id="lightbox">
-        <button class="lightbox-close" id="lightboxClose">✕</button>
-        <img src="" alt="" id="lightboxImg">
-        <div class="lightbox-counter" id="lightboxCounter"></div>
+    <div class="lightbox" id="lightbox" data-page-node-id="eDubAEg2ArFCfiD3pyB7jP">
+        <button class="lightbox-close" id="lightboxClose" data-page-node-id="BGtDkkJ9N4019HIv1Ysc9w">✕</button>
+        <img src="" alt="" id="lightboxImg" data-page-node-id="X0uKApeweW39oenBETJ1DC">
+        <div class="lightbox-counter" id="lightboxCounter" data-page-node-id="Va7ILUw4ctIPCyv01HVGFk"></div>
     </div>
 
     <!-- 微信 JS-SDK -->
@@ -242,7 +242,7 @@
             .then(function(res) { return res.json(); })
             .then(function(res) {
                 if (res.code !== 0) {
-                    console.warn('JS-SDK未配置: ' + res.errorMsg);
+                    console.warn('JS-SDK未配置(请在云托管环境变量中设置WX_APP_ID/WX_APP_SECRET): ' + res.errorMsg);
                     return;
                 }
                 var cfg = res.data;
@@ -255,7 +255,12 @@
                     jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData']
                 });
                 wx.ready(function() {
-                    var info = { title: '我们的相册', desc: '每一刻都值得珍藏', link: shareUrl, imgUrl: photos[0].url };
+                    var info = {
+                        title: cfg.shareTitle || '我们的相册',
+                        desc: cfg.shareDesc || '每一刻都值得珍藏',
+                        link: shareUrl,
+                        imgUrl: cfg.shareImg || photos[0].url
+                    };
                     wx.updateAppMessageShareData(info);
                     wx.updateTimelineShareData({ title: info.title, link: info.link, imgUrl: info.imgUrl });
                 });
