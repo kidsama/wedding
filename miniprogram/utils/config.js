@@ -5,5 +5,5 @@
 // 上线前需要在小程序后台「开发管理 - 开发设置 - 服务器域名 - request 合法域名」
 // 中也填写这个域名。开发阶段可在开发者工具中勾选「不校验合法域名」先调试。
 module.exports = {
-  API_BASE: 'https://your-service-xxxx.ap-shanghai.run.tcloudbase.com'
+  API_BASE: 'wedding.liushaowei.top.tcbaccess.tencentcloudbase.com'
 };
