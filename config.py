@@ -17,3 +17,6 @@ WX_APP_SECRET = os.environ.get("WX_APP_SECRET", '')
 SHARE_TITLE = os.environ.get("SHARE_TITLE", '我们的相册')
 SHARE_DESC = os.environ.get("SHARE_DESC", '每一刻都值得珍藏')
 SHARE_IMG = os.environ.get("SHARE_IMG", '')
+
+# 相册照片列表：环境变量 PHOTO_URLS（英文逗号分隔的图片URL），未配置时使用内置默认列表
+PHOTO_URLS = [u.strip() for u in os.environ.get("PHOTO_URLS", '').split(',') if u.strip()]

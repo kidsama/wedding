@@ -82,6 +82,30 @@ def mp_verify(code):
     return code
 
 
+# 内置默认照片列表（与 H5 版一致）
+_DEFAULT_PHOTOS = [
+    {'url': f'https://picsum.photos/seed/{i}/400/400', 'title': f'照片 {i}'}
+    for i in range(1, 17)
+]
+
+
+@app.route('/api/photos', methods=['GET'])
+def get_photos():
+    """
+    照片列表接口，供小程序/H5使用。
+    照片URL通过云托管环境变量 PHOTO_URLS 配置（英文逗号分隔），未配置时返回内置默认列表。
+    更换照片后无需重新发布小程序。
+    """
+    import config
+
+    urls = config.PHOTO_URLS
+    if urls:
+        photos = [{'url': u, 'title': f'照片 {i + 1}'} for i, u in enumerate(urls)]
+    else:
+        photos = _DEFAULT_PHOTOS
+    return make_succ_response(photos)
+
+
 @app.route('/api/wx/share', methods=['POST'])
 def wx_share():
     """

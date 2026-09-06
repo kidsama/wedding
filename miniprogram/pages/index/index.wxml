@@ -1,0 +1,30 @@
+<view class="page">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-title">📷 我们的相册</view>
+    <view class="header-subtitle">每一刻都值得珍藏</view>
+  </view>
+
+  <!-- 相册网格 -->
+  <view class="gallery" wx:if="{{!loading}}">
+    <view
+      class="gallery-item"
+      wx:for="{{photos}}"
+      wx:key="index"
+      data-index="{{index}}"
+      bindtap="onPhotoTap"
+      hover-class="gallery-item-hover"
+      hover-stay-time="80"
+    >
+      <image class="gallery-img" src="{{item.url}}" mode="aspectFill" lazy-load="{{true}}" />
+    </view>
+  </view>
+
+  <!-- 加载占位 -->
+  <view class="loading" wx:if="{{loading}}">
+    <view class="loading-text">照片加载中…</view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="footer">❤ 美好时光 · 永久珍藏 ❤</view>
+</view>
