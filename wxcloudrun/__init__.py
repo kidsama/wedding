@@ -22,3 +22,10 @@ from wxcloudrun import views
 
 # 加载配置
 app.config.from_object('config')
+
+# 自动建表（Blessings 等新表在部署时自动创建，已存在的表不受影响）
+try:
+    with app.app_context():
+        db.create_all()
+except Exception as e:
+    print('db.create_all failed:', e)

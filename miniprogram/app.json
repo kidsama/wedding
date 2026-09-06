@@ -3,12 +3,20 @@
     "pages/index/index"
   ],
   "window": {
-    "navigationBarTitleText": "我们的相册",
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "婚礼邀请函",
+    "navigationBarBackgroundColor": "#faf7f2",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f8f8f8",
+    "backgroundColor": "#faf7f2",
     "backgroundTextStyle": "light"
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于查看婚礼酒店的位置并进行导航"
+    }
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ],
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"

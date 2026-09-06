@@ -8,8 +8,9 @@ import requests
 from flask import render_template, request
 
 from run import app
+from wxcloudrun import db
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
-from wxcloudrun.model import Counters
+from wxcloudrun.model import Counters, Blessing
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 
 
@@ -199,3 +200,45 @@ def get_count():
     """
     counter = Counters.query.filter(Counters.id == 1).first()
     return make_succ_response(0) if counter is None else make_succ_response(counter.count)
+
+
+# ========== 亲友祝福（弹幕） ==========
+
+@app.route('/api/blessings', methods=['GET'])
+def list_blessings():
+    """
+    获取祝福列表（最新60条）与总数，供小程序弹幕展示
+    :return: { total, items: [{id, name, message}] }
+    """
+    try:
+        items = Blessing.query.order_by(Blessing.id.desc()).limit(60).all()
+        total = Blessing.query.count()
+    except Exception as e:
+        return make_err_response(str(e))
+    return make_succ_response({
+        'total': total,
+        'items': [{'id': b.id, 'name': b.name, 'message': b.message} for b in reversed(items)]
+    })
+
+
+@app.route('/api/blessings', methods=['POST'])
+def add_blessing():
+    """
+    新增一条祝福
+    :param name: 称呼（<=20字）
+    :param message: 祝福语（<=100字）
+    """
+    body = request.get_json(silent=True) or {}
+    name = (body.get('name') or '').strip()[:20]
+    message = (body.get('message') or '').strip()[:100]
+    if not name or not message:
+        return make_err_response('请填写称呼和祝福语')
+    try:
+        b = Blessing(name=name, message=message, created_at=datetime.now())
+        db.session.add(b)
+        db.session.commit()
+        total = Blessing.query.count()
+    except Exception as e:
+        db.session.rollback()
+        return make_err_response(str(e))
+    return make_succ_response({'id': b.id, 'total': total})

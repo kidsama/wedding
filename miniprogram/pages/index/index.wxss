@@ -1,15 +1,107 @@
-/* ========== 基础 ========== */
+/* ========== 整屏翻页容器 ========== */
 .page {
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  background: #faf7f2;
+}
+
+.full-swiper {
+  width: 100%;
+  height: 100%;
+}
+
+/* 每一屏：垂直居中排版 + 入场渐显 */
+.pane {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 90rpx 60rpx 110rpx;
+  box-sizing: border-box;
   background: #faf7f2;
   color: #5a4a3a;
+  opacity: 0;
+  transform: translateY(36rpx);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.pane.on {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== 金色画框（每屏装饰） ========== */
+.frame {
+  position: absolute;
+  inset: 30rpx;
+  border: 1rpx solid rgba(201, 168, 106, 0.45);
+  pointer-events: none;
+}
+
+.frame::before {
+  content: '';
+  position: absolute;
+  inset: 8rpx;
+  border: 1rpx solid rgba(201, 168, 106, 0.18);
+}
+
+.frame::after {
+  content: '❖';
+  position: absolute;
+  top: -16rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #c9a86a;
+  font-size: 26rpx;
+  background: #faf7f2;
+  padding: 0 14rpx;
+}
+
+/* ========== 飘落花瓣 ========== */
+.petals {
+  position: fixed;
+  inset: 0;
+  z-index: 997;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -40rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 120% 0 120% 0;
+  background: rgba(226, 178, 156, 0.55);
+  animation: fall linear infinite;
+}
+
+.p2 { background: rgba(201, 168, 106, 0.4); }
+.p5 { background: rgba(214, 148, 138, 0.4); }
+.p7 { width: 14rpx; height: 14rpx; }
+
+.p1 { left: 8%;  animation-duration: 9s;    animation-delay: 0s; }
+.p2 { left: 22%; animation-duration: 12s;   animation-delay: 3s; }
+.p3 { left: 38%; animation-duration: 10s;   animation-delay: 6s; }
+.p4 { left: 55%; animation-duration: 13s;   animation-delay: 1.5s; }
+.p5 { left: 70%; animation-duration: 11s;   animation-delay: 4.5s; }
+.p6 { left: 85%; animation-duration: 14s;   animation-delay: 7s; }
+.p7 { left: 47%; animation-duration: 9.5s;  animation-delay: 8.5s; }
+
+@keyframes fall {
+  0%   { transform: translateY(-6vh) rotate(0deg);    opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 0.6; }
+  100% { transform: translateY(108vh) rotate(560deg); opacity: 0; }
 }
 
 /* ========== 背景音乐按钮 ========== */
 .music {
   position: fixed;
   top: 120rpx;
-  right: 28rpx;
+  right: 34rpx;
   z-index: 999;
   width: 84rpx;
   height: 84rpx;
@@ -36,9 +128,7 @@
 
 /* ========== ① 首屏 ========== */
 .hero {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
+  padding: 0;
 }
 
 .hero-bg {
@@ -52,86 +142,79 @@
 .hero-mask {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.45) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.08) 40%, rgba(0,0,0,0.5) 100%);
 }
 
 .hero-content {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   color: #ffffff;
-  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.4);
-  padding-bottom: 80rpx;
+  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.45);
 }
 
-.hero-date {
-  font-size: 28rpx;
-  letter-spacing: 8rpx;
-  opacity: 0.9;
+.hero-eyebrow {
+  font-size: 22rpx;
+  letter-spacing: 12rpx;
+  opacity: 0.85;
 }
 
 .hero-names {
-  font-size: 72rpx;
+  font-size: 76rpx;
   font-weight: 300;
-  letter-spacing: 10rpx;
-  margin-top: 28rpx;
+  letter-spacing: 12rpx;
+  margin-top: 30rpx;
   font-family: "STSong", "SimSun", serif;
 }
 
 .heart {
-  font-size: 48rpx;
-  margin: 0 8rpx;
+  font-size: 46rpx;
+  margin: 0 10rpx;
 }
 
 .hero-divider {
   width: 320rpx;
   height: 1rpx;
-  background: rgba(255, 255, 255, 0.7);
-  margin: 36rpx 0 24rpx;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  margin: 36rpx 0 26rpx;
 }
 
-.hero-sub {
-  font-size: 26rpx;
-  letter-spacing: 4rpx;
-  opacity: 0.9;
+.hero-date {
+  font-size: 28rpx;
+  letter-spacing: 6rpx;
+  opacity: 0.95;
+}
+
+.hero-lunar {
+  font-size: 24rpx;
+  opacity: 0.8;
+  margin-left: 10rpx;
 }
 
 .hero-invite {
-  font-size: 30rpx;
-  letter-spacing: 6rpx;
-  margin-top: 20rpx;
+  font-size: 28rpx;
+  letter-spacing: 8rpx;
+  margin-top: 24rpx;
 }
 
-.hero-arrow {
-  position: absolute;
-  bottom: 40rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 44rpx;
-  animation: bounce 1.6s ease infinite;
+.hero-hint {
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  margin-top: 70rpx;
+  opacity: 0.7;
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translate(-50%, 0); }
-  50%      { transform: translate(-50%, 14rpx); }
-}
-
-/* ========== 通用区块 ========== */
-.section {
-  padding: 72rpx 48rpx 0;
-}
-
+/* ========== 区块标题 ========== */
 .section-title {
   text-align: center;
   font-size: 34rpx;
-  letter-spacing: 8rpx;
-  color: #c9a86a;
+  letter-spacing: 10rpx;
+  color: #b3925a;
   margin-bottom: 36rpx;
   position: relative;
+  font-family: "STSong", "SimSun", serif;
 }
 
 .section-title::before,
@@ -140,32 +223,76 @@
   display: inline-block;
   width: 56rpx;
   height: 1rpx;
-  background: #d8c8a8;
+  background: linear-gradient(90deg, transparent, #d8c8a8, transparent);
   vertical-align: middle;
   margin: 0 20rpx;
 }
 
-/* ========== ② 邀请函 ========== */
-.invite-card {
-  background: #ffffff;
-  border: 1rpx solid #eee4d2;
-  border-radius: 16rpx;
-  padding: 56rpx 48rpx;
+/* 英文小字点缀 */
+.eyebrow {
   text-align: center;
-  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.08);
+  font-size: 20rpx;
+  letter-spacing: 10rpx;
+  color: #c2ae87;
+  margin-top: 44rpx;
 }
 
-.invite-line {
+/* ========== ② 邀请函（竖排古信式） ========== */
+.wm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -54%);
+  font-size: 420rpx;
+  color: rgba(201, 168, 106, 0.07);
+  font-family: "STSong", "SimSun", serif;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.invite-card {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1rpx solid #eee4d2;
+  border-radius: 8rpx;
+  padding: 44rpx 52rpx 36rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 竖排：从右往左读的古书信排版 */
+.invite-cols {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 22rpx;
+  min-height: 300rpx;
+}
+
+.invite-col {
+  writing-mode: vertical-rl;
+  font-size: 26rpx;
+  letter-spacing: 7rpx;
+  color: #6a5947;
+  font-family: "STSong", "SimSun", serif;
+  line-height: 1.4;
+}
+
+.invite-orn {
+  color: #c9a86a;
   font-size: 28rpx;
-  line-height: 2.2;
-  letter-spacing: 2rpx;
+  margin-top: 20rpx;
 }
 
 .invite-sign {
-  margin-top: 40rpx;
-  font-size: 26rpx;
-  color: #c9a86a;
+  margin-top: 14rpx;
+  font-size: 25rpx;
+  color: #b3925a;
   letter-spacing: 3rpx;
+  font-family: "STSong", "SimSun", serif;
 }
 
 /* ========== ③ 倒计时 ========== */
@@ -173,68 +300,136 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 16rpx;
 }
 
 .cd-box {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.9);
   border: 1rpx solid #eee4d2;
   border-radius: 12rpx;
-  width: 128rpx;
-  padding: 24rpx 0 18rpx;
+  width: 120rpx;
+  padding: 20rpx 0 16rpx;
   text-align: center;
   box-shadow: 0 6rpx 20rpx rgba(201, 168, 106, 0.1);
 }
 
 .cd-num {
-  font-size: 48rpx;
+  font-size: 46rpx;
   color: #5a4a3a;
   font-weight: 600;
 }
 
 .cd-label {
-  font-size: 22rpx;
+  font-size: 21rpx;
   color: #b0a28c;
   margin-top: 6rpx;
 }
 
 .cd-sep {
-  font-size: 40rpx;
+  font-size: 38rpx;
   color: #c9a86a;
-  margin: 0 14rpx;
-  padding-bottom: 30rpx;
+  margin: 0 12rpx;
+  padding-bottom: 28rpx;
 }
 
 .married-text {
   text-align: center;
   font-size: 28rpx;
   line-height: 2;
-  padding: 24rpx 0;
+  margin-top: 20rpx;
 }
 
-/* ========== ④ 照片轮播 ========== */
-.story-swiper {
-  height: 480rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  transform: translateY(0); /* 修复 swiper 圆角在部分机型失效 */
+/* ========== ④ 艺术相册（每屏一组） ========== */
+.story-no {
+  text-align: center;
+  font-size: 20rpx;
+  letter-spacing: 10rpx;
+  color: #c2ae87;
+  margin-bottom: 10rpx;
 }
 
-.story-img {
+.story {
+  position: relative;
   width: 100%;
-  height: 100%;
-  background: #e9e2d5;
+  height: 540rpx;
 }
 
-/* ========== ⑤ 相册网格 ========== */
+.story-img-main {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 62%;
+  height: 440rpx;
+  border-radius: 4rpx;
+  background: #e9e2d5;
+  box-shadow: 0 10rpx 36rpx rgba(90, 74, 58, 0.18);
+}
+
+.story-img-sub {
+  position: absolute;
+  right: 0;
+  top: 150rpx;
+  width: 46%;
+  height: 370rpx;
+  border-radius: 4rpx;
+  background: #e9e2d5;
+  border: 8rpx solid #faf7f2;
+  box-shadow: 0 10rpx 36rpx rgba(90, 74, 58, 0.22);
+}
+
+/* 反向布局：主图在右，副图在左 */
+.story-reverse .story-img-main {
+  left: auto;
+  right: 0;
+}
+
+.story-reverse .story-img-sub {
+  right: auto;
+  left: 0;
+}
+
+/* 情话 */
+.story-quote {
+  text-align: center;
+  padding-top: 16rpx;
+}
+
+.quote-mark {
+  font-size: 60rpx;
+  line-height: 1;
+  color: #e3d5b8;
+  font-family: Georgia, serif;
+  height: 40rpx;
+}
+
+.quote-text {
+  font-size: 30rpx;
+  color: #8a7a63;
+  letter-spacing: 5rpx;
+  font-family: "STSong", "SimSun", serif;
+  margin-top: 4rpx;
+}
+
+.quote-line {
+  width: 64rpx;
+  height: 3rpx;
+  background: #d8c8a8;
+  margin: 22rpx auto 0;
+  border-radius: 2rpx;
+}
+
+/* ========== ⑤ 网格相册 ========== */
 .gallery {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
   margin: 0 -3rpx;
 }
 
 .gallery-item {
   width: 25%;
-  height: 168rpx;
+  height: 152rpx;
   padding: 3rpx;
   box-sizing: border-box;
 }
@@ -248,22 +443,26 @@
   height: 100%;
   display: block;
   background: #e9e2d5;
-  border-radius: 6rpx;
+  border-radius: 4rpx;
 }
 
 /* ========== ⑥ 婚礼地点 ========== */
 .venue-card {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.9);
   border: 1rpx solid #eee4d2;
-  border-radius: 16rpx;
-  padding: 48rpx 40rpx;
-  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.08);
+  border-radius: 8rpx;
+  padding: 44rpx 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .venue-name {
   font-size: 32rpx;
   font-weight: 600;
   color: #5a4a3a;
+  font-family: "STSong", "SimSun", serif;
 }
 
 .venue-addr {
@@ -290,31 +489,131 @@
   margin-top: 40rpx;
 }
 
-/* ========== ⑦ 祝福 ========== */
-.bless-card {
-  background: #ffffff;
+/* ========== ⑦ 亲友祝福弹幕 ========== */
+.danmaku-box {
+  position: relative;
+  width: 100%;
+  height: 300rpx;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9);
   border: 1rpx solid #eee4d2;
-  border-radius: 16rpx;
-  padding: 48rpx 40rpx;
-  text-align: center;
-  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.08);
+  border-radius: 8rpx;
+  box-shadow: 0 8rpx 32rpx rgba(201, 168, 106, 0.1);
 }
 
-.bless-count {
-  font-size: 28rpx;
+.danmaku-lane {
+  position: absolute;
+  left: 0;
+  white-space: nowrap;
+  font-size: 26rpx;
+  line-height: 1;
+}
+
+.lane-0 {
+  top: 36rpx;
+  animation: dm 16s linear infinite;
+}
+
+.lane-1 {
+  top: 124rpx;
+  animation: dm 22s linear infinite;
+  animation-delay: -6s;
+}
+
+.lane-2 {
+  top: 212rpx;
+  animation: dm 19s linear infinite;
+  animation-delay: -12s;
+}
+
+.dm-item {
+  display: inline-block;
+  padding: 14rpx 24rpx;
+  margin-right: 48rpx;
+  background: rgba(201, 168, 106, 0.14);
+  color: #8a7a63;
+  border-radius: 28rpx;
+}
+
+.dm-alt {
+  background: rgba(154, 138, 117, 0.12);
+}
+
+.dm-warm {
+  background: rgba(230, 168, 138, 0.14);
+}
+
+@keyframes dm {
+  from { transform: translateX(100vw); }
+  to   { transform: translateX(-100%); }
+}
+
+.bless-meta {
+  margin-top: 26rpx;
+  font-size: 26rpx;
   color: #9a8a75;
 }
 
 .bless-num {
-  color: #c9a86a;
-  font-size: 40rpx;
+  color: #b3925a;
+  font-size: 38rpx;
   font-weight: 600;
   margin: 0 6rpx;
 }
 
 .bless-btn {
-  margin-top: 32rpx;
+  margin-top: 26rpx;
   width: 60%;
+}
+
+/* ========== ⑧ 尾页 ========== */
+.pane-ending {
+  background: linear-gradient(180deg, #faf7f2 0%, #f1e9da 100%);
+}
+
+.ending-mono {
+  width: 170rpx;
+  height: 170rpx;
+  border-radius: 50%;
+  border: 1rpx solid #c9a86a;
+  box-shadow: inset 0 0 0 8rpx rgba(201, 168, 106, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42rpx;
+  color: #b3925a;
+  letter-spacing: 4rpx;
+  font-family: Georgia, serif;
+}
+
+.ending-names {
+  font-size: 52rpx;
+  color: #5a4a3a;
+  letter-spacing: 10rpx;
+  margin-top: 44rpx;
+  font-family: "STSong", "SimSun", serif;
+}
+
+.ending-eyebrow {
+  font-size: 20rpx;
+  letter-spacing: 10rpx;
+  color: #c2ae87;
+  margin-top: 20rpx;
+}
+
+.ending-text {
+  font-size: 30rpx;
+  color: #9a8a75;
+  letter-spacing: 8rpx;
+  margin-top: 30rpx;
+  font-family: "STSong", "SimSun", serif;
+}
+
+.ending-date {
+  font-size: 24rpx;
+  color: #b0a28c;
+  letter-spacing: 2rpx;
+  margin-top: 44rpx;
 }
 
 /* ========== 按钮 ========== */
@@ -348,11 +647,59 @@
   box-sizing: border-box;
 }
 
-/* ========== 底部 ========== */
-.footer {
+/* ========== 祝福弹窗 ========== */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  width: 620rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 48rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.modal-title {
   text-align: center;
-  padding: 72rpx 32rpx 88rpx;
-  color: #b0a28c;
-  font-size: 26rpx;
-  letter-spacing: 4rpx;
+  font-size: 32rpx;
+  letter-spacing: 6rpx;
+  color: #c9a86a;
+  margin-bottom: 32rpx;
+  font-family: "STSong", "SimSun", serif;
+}
+
+.modal-input {
+  background: #faf7f2;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.modal-textarea {
+  background: #faf7f2;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  width: 100%;
+  height: 160rpx;
+  box-sizing: border-box;
+}
+
+.modal-btns {
+  display: flex;
+  margin-top: 32rpx;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

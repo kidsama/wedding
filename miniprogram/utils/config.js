@@ -7,15 +7,17 @@ module.exports = {
 
   // ========== 婚礼信息（必改） ==========
   WEDDING: {
-    groom: '新郎名',            // 新郎名字
-    bride: '新娘名',            // 新娘名字
+    groom: 'lsw',            // 新郎名字
+    bride: 'gd',            // 新娘名字
     date: '2026-10-01 11:58',  // 婚礼时间（用于倒计时，格式固定 YYYY-MM-DD HH:mm）
     lunar: '农历八月十一',       // 农历日期（装饰用，可留空 ''）
     venue: '幸福大酒店 · 3楼宴会厅', // 酒店名称
     address: 'XX市XX区XX路88号',    // 酒店详细地址
     latitude: 0,               // 酒店纬度（填了才能一键导航，坐标可从腾讯地图坐标拾取器获取：lbs.qq.com/getPoint）
     longitude: 0,              // 酒店经度
-    musicUrl: '',              // 背景音乐地址（https mp3，留空则不显示音乐按钮）
+    musicUrl: 'https://wedding.liushaowei.top.tcbaccess.tencentcloudbase.com/static/music.mp3',
+    // 背景音乐：把 mp3 改名为 music.mp3 放到云托管项目 wxcloudrun/static/ 目录并重新部署即可
+    // （注意使用有版权授权的音乐；文件不存在时音乐按钮会自动隐藏）
 
     // 邀请函正文（每个元素一行，'' 为空行）
     invitation: [

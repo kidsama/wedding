@@ -1,96 +1,165 @@
 <view class="page">
 
+  <!-- 飘落花瓣（全局装饰） -->
+  <view class="petals">
+    <view class="petal p1"></view>
+    <view class="petal p2"></view>
+    <view class="petal p3"></view>
+    <view class="petal p4"></view>
+    <view class="petal p5"></view>
+    <view class="petal p6"></view>
+    <view class="petal p7"></view>
+  </view>
+
   <!-- 背景音乐按钮 -->
-  <view class="music {{musicPlaying ? 'music-playing' : ''}}" wx:if="{{wedding.musicUrl}}" bindtap="toggleMusic">
+  <view class="music {{musicPlaying ? 'music-playing' : ''}}" wx:if="{{wedding.musicUrl}}" catchtap="toggleMusic">
     <text class="music-icon">🎵</text>
   </view>
 
-  <!-- ① 首屏：大图 + 新人名字 -->
-  <view class="hero">
-    <image class="hero-bg" src="{{heroUrl}}" mode="aspectFill" />
-    <view class="hero-mask"></view>
-    <view class="hero-content">
-      <view class="hero-date">{{wedding.date}}</view>
-      <view class="hero-names">{{wedding.groom}} <text class="heart">❤</text> {{wedding.bride}}</view>
-      <view class="hero-divider"></view>
-      <view class="hero-sub" wx:if="{{wedding.lunar}}">{{wedding.lunar}}</view>
-      <view class="hero-invite">诚挚邀请您见证我们的婚礼</view>
-    </view>
-    <view class="hero-arrow">▾</view>
-  </view>
+  <!-- 整屏竖向翻页（自动轮播，可手动滑动） -->
+  <swiper class="full-swiper" vertical circular="{{false}}" autoplay="{{true}}" interval="8000" duration="500" bindchange="onSwiperChange">
 
-  <!-- ② 邀请函 -->
-  <view class="section">
-    <view class="section-title">邀 请 函</view>
-    <view class="invite-card">
-      <view class="invite-line" wx:for="{{wedding.invitation}}" wx:key="index">{{item}}</view>
-      <view class="invite-sign">{{wedding.groom}} & {{wedding.bride}} 敬上</view>
-    </view>
-  </view>
-
-  <!-- ③ 倒计时 -->
-  <view class="section" wx:if="{{!married}}">
-    <view class="section-title">距离婚礼还有</view>
-    <view class="countdown">
-      <view class="cd-box"><view class="cd-num">{{countdown.d}}</view><view class="cd-label">天</view></view>
-      <view class="cd-sep">:</view>
-      <view class="cd-box"><view class="cd-num">{{countdown.h}}</view><view class="cd-label">时</view></view>
-      <view class="cd-sep">:</view>
-      <view class="cd-box"><view class="cd-num">{{countdown.m}}</view><view class="cd-label">分</view></view>
-      <view class="cd-sep">:</view>
-      <view class="cd-box"><view class="cd-num">{{countdown.s}}</view><view class="cd-label">秒</view></view>
-    </view>
-  </view>
-  <view class="section" wx:else>
-    <view class="married-text">🎊 我们已步入婚姻的殿堂，感谢您的祝福！</view>
-  </view>
-
-  <!-- ④ 照片轮播 -->
-  <view class="section" wx:if="{{photos.length > 0}}">
-    <view class="section-title">我 们 的 故 事</view>
-    <swiper class="story-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)"
-            indicator-active-color="#c9a86a" autoplay circular interval="3500">
-      <swiper-item wx:for="{{photos}}" wx:if="{{index < 5}}" wx:key="index" bindtap="onPhotoTap" data-index="{{index}}">
-        <image class="story-img" src="{{item.url}}" mode="aspectFill" />
-      </swiper-item>
-    </swiper>
-  </view>
-
-  <!-- ⑤ 相册网格 -->
-  <view class="section" wx:if="{{photos.length > 0}}">
-    <view class="section-title">幸 福 瞬 间</view>
-    <view class="gallery">
-      <view class="gallery-item" wx:for="{{photos}}" wx:key="index"
-            data-index="{{index}}" bindtap="onPhotoTap" hover-class="gallery-hover">
-        <image class="gallery-img" src="{{item.url}}" mode="aspectFill" lazy-load="{{true}}" />
+    <!-- ① 首屏：大图 + 新人名字 -->
+    <swiper-item>
+      <view class="pane hero {{current === 0 ? 'on' : ''}}">
+        <image class="hero-bg" src="{{heroUrl}}" mode="aspectFill" />
+        <view class="hero-mask"></view>
+        <view class="hero-content">
+          <view class="hero-eyebrow">THE WEDDING OF</view>
+          <view class="hero-names">{{wedding.groom}} <text class="heart">❤</text> {{wedding.bride}}</view>
+          <view class="hero-divider"></view>
+          <view class="hero-date">{{wedding.date}} <text wx:if="{{wedding.lunar}}" class="hero-lunar">{{wedding.lunar}}</text></view>
+          <view class="hero-invite">诚挚邀请您见证我们的婚礼</view>
+          <view class="hero-hint">上滑开启请柬</view>
+        </view>
       </view>
-    </view>
-  </view>
+    </swiper-item>
 
-  <!-- ⑥ 婚礼地点 -->
-  <view class="section">
-    <view class="section-title">婚 礼 地 点</view>
-    <view class="venue-card">
-      <view class="venue-name">📍 {{wedding.venue}}</view>
-      <view class="venue-addr">{{wedding.address}}</view>
-      <view class="venue-time">⏰ {{wedding.date}} <text wx:if="{{wedding.lunar}}" class="venue-lunar">{{wedding.lunar}}</text></view>
-      <view class="btn-row">
-        <button class="btn btn-gold" bindtap="openMap">一键导航</button>
-        <button class="btn btn-line" bindtap="saveDate">添加到日历</button>
+    <!-- ② 邀请函（竖排古信式）+ 倒计时 -->
+    <swiper-item>
+      <view class="pane {{current === 1 ? 'on' : ''}}">
+        <view class="frame"></view>
+        <view class="wm">囍</view>
+        <view class="section-title">邀 请 函</view>
+        <view class="invite-card">
+          <view class="invite-cols">
+            <view class="invite-col" wx:for="{{wedding.invitation}}" wx:key="index" wx:if="{{item}}">{{item}}</view>
+          </view>
+          <view class="invite-orn">❦</view>
+          <view class="invite-sign">{{wedding.groom}} & {{wedding.bride}} 敬上</view>
+        </view>
+        <block wx:if="{{!married}}">
+          <view class="eyebrow">SAVE THE DATE</view>
+          <view class="countdown">
+            <view class="cd-box"><view class="cd-num">{{countdown.d}}</view><view class="cd-label">天</view></view>
+            <view class="cd-sep">:</view>
+            <view class="cd-box"><view class="cd-num">{{countdown.h}}</view><view class="cd-label">时</view></view>
+            <view class="cd-sep">:</view>
+            <view class="cd-box"><view class="cd-num">{{countdown.m}}</view><view class="cd-label">分</view></view>
+            <view class="cd-sep">:</view>
+            <view class="cd-box"><view class="cd-num">{{countdown.s}}</view><view class="cd-label">秒</view></view>
+          </view>
+        </block>
+        <view class="married-text" wx:else>🎊 我们已步入婚姻的殿堂，感谢您的祝福！</view>
       </view>
+    </swiper-item>
+
+    <!-- ③ 艺术相册：每组照片独立一屏 -->
+    <swiper-item wx:for="{{stories}}" wx:key="index">
+      <view class="pane {{current === 2 + index ? 'on' : ''}}">
+        <view class="frame"></view>
+        <view class="story-no">CHAPTER {{index + 1}}</view>
+        <view class="section-title">我 们 的 故 事</view>
+        <view class="story {{item.reverse ? 'story-reverse' : ''}}">
+          <image class="story-img-main" src="{{item.a.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{index * 2}}" />
+          <image wx:if="{{item.b}}" class="story-img-sub" src="{{item.b.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{index * 2 + 1}}" />
+        </view>
+        <view class="story-quote">
+          <view class="quote-mark">"</view>
+          <view class="quote-text">{{item.quote}}</view>
+          <view class="quote-line"></view>
+        </view>
+      </view>
+    </swiper-item>
+
+    <!-- ④ 幸福瞬间（网格） -->
+    <swiper-item wx:if="{{photos.length > 0}}">
+      <view class="pane {{current === 2 + stories.length ? 'on' : ''}}">
+        <view class="frame"></view>
+        <view class="section-title">幸 福 瞬 间</view>
+        <view class="gallery">
+          <view class="gallery-item" wx:for="{{photos}}" wx:key="index"
+                data-index="{{index}}" bindtap="onPhotoTap" hover-class="gallery-hover">
+            <image class="gallery-img" src="{{item.url}}" mode="aspectFill" lazy-load="{{true}}" />
+          </view>
+        </view>
+      </view>
+    </swiper-item>
+
+    <!-- ⑤ 婚礼地点 -->
+    <swiper-item>
+      <view class="pane {{current === 3 + stories.length ? 'on' : ''}}">
+        <view class="frame"></view>
+        <view class="section-title">婚 礼 地 点</view>
+        <view class="venue-card">
+          <view class="venue-name">📍 {{wedding.venue}}</view>
+          <view class="venue-addr">{{wedding.address}}</view>
+          <view class="venue-time">⏰ {{wedding.date}} <text wx:if="{{wedding.lunar}}" class="venue-lunar">{{wedding.lunar}}</text></view>
+          <view class="btn-row">
+            <button class="btn btn-gold" bindtap="openMap">一键导航</button>
+            <button class="btn btn-line" bindtap="saveDate">添加到日历</button>
+          </view>
+        </view>
+      </view>
+    </swiper-item>
+
+    <!-- ⑥ 亲友祝福弹幕 -->
+    <swiper-item>
+      <view class="pane {{current === 4 + stories.length ? 'on' : ''}}">
+        <view class="frame"></view>
+        <view class="section-title">亲 友 祝 福</view>
+        <view class="danmaku-box">
+          <view class="danmaku-lane lane-0">
+            <text class="dm-item" wx:for="{{danmakuLanes[0]}}" wx:key="index" wx:if="{{danmakuLanes[0].length}}">{{item}}</text>
+          </view>
+          <view class="danmaku-lane lane-1">
+            <text class="dm-item dm-alt" wx:for="{{danmakuLanes[1]}}" wx:key="index" wx:if="{{danmakuLanes[1].length}}">{{item}}</text>
+          </view>
+          <view class="danmaku-lane lane-2">
+            <text class="dm-item dm-warm" wx:for="{{danmakuLanes[2]}}" wx:key="index" wx:if="{{danmakuLanes[2].length}}">{{item}}</text>
+          </view>
+        </view>
+
+        <view class="bless-meta" wx:if="{{blessingTotal !== null}}">
+          已有 <text class="bless-num">{{blessingTotal}}</text> 位亲友送上祝福
+        </view>
+        <button class="btn btn-gold bless-btn" bindtap="openBlessModal">❤ 送上我的祝福</button>
+      </view>
+    </swiper-item>
+
+    <!-- ⑦ 尾页 -->
+    <swiper-item>
+      <view class="pane pane-ending {{current === 5 + stories.length ? 'on' : ''}}">
+        <view class="frame"></view>
+        <view class="ending-mono">{{monogram}}</view>
+        <view class="ending-names">{{wedding.groom}} & {{wedding.bride}}</view>
+        <view class="ending-eyebrow">OUR WEDDING DAY</view>
+        <view class="ending-text">期待与您相聚</view>
+        <view class="ending-date">{{wedding.date}} · {{wedding.venue}}</view>
+      </view>
+    </swiper-item>
+  </swiper>
+</view>
+
+<!-- 祝福弹窗 -->
+<view class="modal-mask" wx:if="{{showBlessModal}}" bindtap="closeBlessModal">
+  <view class="modal" catchtap="">
+    <view class="modal-title">送 上 祝 福</view>
+    <input class="modal-input" placeholder="怎么称呼您？（如：表哥）" maxlength="20" value="{{blessName}}" bindinput="onNameInput" />
+    <textarea class="modal-textarea" placeholder="写下您的祝福…（如：新婚快乐，百年好合！）" maxlength="100" value="{{blessText}}" bindinput="onTextInput" />
+    <view class="modal-btns">
+      <button class="btn btn-line" bindtap="closeBlessModal">取消</button>
+      <button class="btn btn-gold" bindtap="submitBlessing">送出祝福</button>
     </view>
   </view>
-
-  <!-- ⑦ 好友祝福 -->
-  <view class="section">
-    <view class="section-title">亲 友 祝 福</view>
-    <view class="bless-card">
-      <view class="bless-count" wx:if="{{blessings !== null}}">已有 <text class="bless-num">{{blessings}}</text> 位亲友送上祝福</view>
-      <view class="bless-count" wx:else>祝福加载中…</view>
-      <button class="btn btn-gold bless-btn" bindtap="onBless">❤ 我要祝福</button>
-    </view>
-  </view>
-
-  <!-- 底部 -->
-  <view class="footer">❤ 期待与您相聚 ❤</view>
 </view>
