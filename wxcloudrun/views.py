@@ -10,7 +10,7 @@ from flask import render_template, request
 from run import app
 from wxcloudrun import db
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
-from wxcloudrun.model import Counters, Blessing
+from wxcloudrun.model import Counters, Blessing, Rsvp, Visit
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 
 
@@ -105,6 +105,40 @@ def get_photos():
     else:
         photos = _DEFAULT_PHOTOS
     return make_succ_response(photos)
+
+
+@app.route('/api/albums', methods=['GET'])
+def get_albums():
+    """
+    相册列表接口：PHOTO_URLS 用英文分号「;」分组，每组一个相册（自动命名 相册1/相册2…）。
+    未配置分号时只有一个相册；完全未配置照片时，把内置默认列表对半分成两个相册，便于预览。
+    :return: [{ name, cover, count, photos: [{url, title}] }]
+    """
+    import config
+
+    if config.PHOTO_GROUPS:
+        albums = []
+        for g in config.PHOTO_GROUPS:
+            photos = [{'url': u, 'title': f'{g["name"]} {i + 1}'} for i, u in enumerate(g['urls'])]
+            albums.append({
+                'name': g['name'],
+                'cover': g['urls'][0],
+                'count': len(g['urls']),
+                'photos': photos,
+            })
+    else:
+        albums = []
+        half = (len(_DEFAULT_PHOTOS) + 1) // 2
+        for name, chunk in (('相册1', _DEFAULT_PHOTOS[:half]), ('相册2', _DEFAULT_PHOTOS[half:])):
+            if not chunk:
+                continue
+            albums.append({
+                'name': name,
+                'cover': chunk[0]['url'],
+                'count': len(chunk),
+                'photos': chunk,
+            })
+    return make_succ_response(albums)
 
 
 @app.route('/api/wx/share', methods=['POST'])
@@ -204,6 +238,43 @@ def get_count():
 
 # ========== 亲友祝福（弹幕） ==========
 
+# 内存级限流：ip -> 最后一次提交时间戳
+_bless_rate = {}
+
+# 本地敏感词兜底（云端内容安全不可用时的最后防线）
+_BLOCKLIST = ['加微', '微信号', 'vx:', 'vx：', '代刷', '兼职', '贷款', '博彩', '推广', 'https://', 'http://']
+
+
+def _sec_check(text):
+    """
+    祝福语内容安全检测：
+    1) 本地敏感词过滤（兜底，始终执行）；
+    2) 微信 msg_sec_check 内容安全接口（云托管内网免鉴权调用；公网调用缺少
+       access_token 会返回错误码，此时视为云端检测不可用，仅依赖本地过滤）。
+    """
+    low = text.lower()
+    if any(w in low for w in _BLOCKLIST):
+        return False
+    try:
+        resp = requests.post('https://api.weixin.qq.com/wxa/msg_sec_check',
+                             json={'content': text, 'scene': 3}, timeout=5)
+        data = resp.json()
+        code = data.get('errcode')
+        if code == 0:
+            return True
+        if code == 87014:      # 内容包含违规信息
+            return False
+        # 其他错误码（如 40001/41002 等 token 类错误）→ 云端检测不可用，放行
+        return True
+    except Exception:
+        return True
+
+
+def _blessing_stats():
+    total = Blessing.query.count()
+    return total
+
+
 @app.route('/api/blessings', methods=['GET'])
 def list_blessings():
     """
@@ -224,15 +295,28 @@ def list_blessings():
 @app.route('/api/blessings', methods=['POST'])
 def add_blessing():
     """
-    新增一条祝福
+    新增一条祝福（带内容安全检测 + 频率限制 + 总量上限）
     :param name: 称呼（<=20字）
     :param message: 祝福语（<=100字）
     """
+    import config
+
     body = request.get_json(silent=True) or {}
     name = (body.get('name') or '').strip()[:20]
     message = (body.get('message') or '').strip()[:100]
     if not name or not message:
         return make_err_response('请填写称呼和祝福语')
+
+    # 频率限制：同一 IP 60 秒内只允许提交一条
+    ip = request.headers.get('X-Real-IP') or request.remote_addr or ''
+    now = time.time()
+    if now - _bless_rate.get(ip, 0) < 60:
+        return make_err_response('发送太频繁啦，休息一下再送祝福')
+    if Blessing.query.count() >= config.MAX_BLESSINGS:
+        return make_err_response('祝福已达上限，感谢大家的热情！')
+    if not _sec_check(message):
+        return make_err_response('祝福语包含不合适的内容，请修改后再送出')
+
     try:
         b = Blessing(name=name, message=message, created_at=datetime.now())
         db.session.add(b)
@@ -241,4 +325,113 @@ def add_blessing():
     except Exception as e:
         db.session.rollback()
         return make_err_response(str(e))
+    _bless_rate[ip] = now
     return make_succ_response({'id': b.id, 'total': total})
+
+
+# ========== 到场回执 ==========
+
+def _rsvp_stats():
+    rows = Rsvp.query.filter(Rsvp.attend.is_(True)).all()
+    attending = len(rows)
+    guests = sum(r.guests or 1 for r in rows)
+    return {'attending': attending, 'guests': guests}
+
+
+@app.route('/api/rsvp', methods=['GET'])
+def get_rsvp():
+    """
+    查询我的回执（?visitorKey=xxx）
+    """
+    vk = (request.args.get('visitorKey') or '')[:64]
+    if not vk:
+        return make_succ_response(None)
+    r = Rsvp.query.filter(Rsvp.visitor_key == vk).order_by(Rsvp.id.desc()).first()
+    if r is None:
+        return make_succ_response(None)
+    return make_succ_response({'attend': bool(r.attend), 'guests': r.guests, 'name': r.name})
+
+
+@app.route('/api/rsvp', methods=['POST'])
+def post_rsvp():
+    """
+    提交/更新回执（同一 visitorKey 覆盖更新）
+    :param visitorKey: 前端生成的访客标识
+    :param name: 称呼（选填）
+    :param attend: 是否出席
+    :param guests: 出席人数（含本人，1-20）
+    """
+    body = request.get_json(silent=True) or {}
+    vk = (body.get('visitorKey') or '').strip()[:64]
+    if not vk:
+        return make_err_response('缺少访客标识')
+    name = (body.get('name') or '').strip()[:20]
+    attend = bool(body.get('attend'))
+    try:
+        guests = int(body.get('guests') or 1)
+    except (TypeError, ValueError):
+        guests = 1
+    guests = max(1, min(20, guests))
+
+    now = datetime.now()
+    try:
+        r = Rsvp.query.filter(Rsvp.visitor_key == vk).order_by(Rsvp.id.desc()).first()
+        if r is None:
+            r = Rsvp(visitor_key=vk, name=name, attend=attend, guests=guests,
+                     created_at=now, updated_at=now)
+            db.session.add(r)
+        else:
+            r.name = name
+            r.attend = attend
+            r.guests = guests if attend else 0
+            r.updated_at = now
+        db.session.commit()
+        stats = _rsvp_stats()
+    except Exception as e:
+        db.session.rollback()
+        return make_err_response(str(e))
+    return make_succ_response(stats)
+
+
+@app.route('/api/rsvp/stats', methods=['GET'])
+def rsvp_stats():
+    """
+    回执统计：出席组数与总人数
+    """
+    try:
+        stats = _rsvp_stats()
+    except Exception as e:
+        return make_err_response(str(e))
+    return make_succ_response(stats)
+
+
+# ========== 访问记录 ==========
+
+@app.route('/api/visit', methods=['POST'])
+def record_visit():
+    """
+    记录一次访问（前端进入页面时调用，visitorKey 由前端本地生成并持久化）
+    """
+    body = request.get_json(silent=True) or {}
+    vk = (body.get('visitorKey') or '').strip()[:64]
+    if vk:
+        try:
+            db.session.add(Visit(visitor_key=vk, created_at=datetime.now()))
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return make_err_response(str(e))
+    return make_succ_empty_response()
+
+
+@app.route('/api/visit/stats', methods=['GET'])
+def visit_stats():
+    """
+    访问统计：总浏览次数与独立访客数
+    """
+    try:
+        total = Visit.query.count()
+        unique = db.session.query(db.func.count(db.distinct(Visit.visitor_key))).scalar()
+    except Exception as e:
+        return make_err_response(str(e))
+    return make_succ_response({'total': total or 0, 'unique': unique or 0})

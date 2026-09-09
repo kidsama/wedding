@@ -1,0 +1,207 @@
+<view class="page">
+
+  <!-- 飘落花瓣（全局装饰） -->
+  <view class="petals">
+    <view class="petal p1"></view>
+    <view class="petal p2"></view>
+    <view class="petal p3"></view>
+    <view class="petal p4"></view>
+    <view class="petal p5"></view>
+    <view class="petal p6"></view>
+    <view class="petal p7"></view>
+  </view>
+
+  <!-- 背景音乐按钮 -->
+  <view class="music {{musicPlaying ? 'music-playing' : ''}}" wx:if="{{wedding.musicUrl}}" catchtap="toggleMusic">
+    <image class="music-icon" src="{{icons.musicOn}}" mode="aspectFit" />
+  </view>
+
+  <!-- 整屏竖向翻页（手动滑动） -->
+  <swiper class="full-swiper" vertical circular="{{false}}" autoplay="{{false}}" duration="500" bindchange="onSwiperChange">
+
+    <!-- ① 封面：奶油底 + 弧形 WELCOME + 新人插画 -->
+    <swiper-item>
+      <view class="pane cover {{current === 0 ? 'on' : ''}}">
+        <view class="cover-arc">
+          <text class="arc-l" style="transform: translateY(18rpx) rotate(-30deg);">W</text>
+          <text class="arc-l" style="transform: translateY(5rpx) rotate(-20deg);">E</text>
+          <text class="arc-l" style="transform: translateY(-4rpx) rotate(-10deg);">L</text>
+          <text class="arc-l" style="transform: translateY(-8rpx) rotate(0deg);">C</text>
+          <text class="arc-l" style="transform: translateY(-4rpx) rotate(10deg);">O</text>
+          <text class="arc-l" style="transform: translateY(5rpx) rotate(20deg);">M</text>
+          <text class="arc-l" style="transform: translateY(18rpx) rotate(30deg);">E</text>
+        </view>
+        <view class="cover-tag">【婚礼邀请函】</view>
+        <image class="cover-title-img" src="/images/page-1-title-1.png" mode="aspectFit" />
+        <image class="cover-illus" src="/images/cover-illus.gif" mode="aspectFit" />
+        <view class="cover-en">We are getting married!</view>
+        <view class="cover-hint">上滑开启请柬</view>
+      </view>
+    </swiper-item>
+
+    <!-- ② 邀请函 -->
+    <swiper-item>
+      <view class="pane {{current === 1 ? 'on' : ''}}">
+        <view class="pane-eyebrow">INVITATION</view>
+        <view class="section-title">邀 请 函</view>
+        <view class="invite-card">
+          <view class="invite-line" wx:for="{{wedding.invitation}}" wx:key="index" wx:if="{{item}}">{{item}}</view>
+          <view class="invite-orn">❦</view>
+          <view class="invite-sign">{{wedding.groom}} & {{wedding.bride}} 敬上</view>
+        </view>
+      </view>
+    </swiper-item>
+
+    <!-- ③ 婚礼信息：日期 + 倒计时 + 地点导航 -->
+    <swiper-item>
+      <view class="pane {{current === 2 ? 'on' : ''}}">
+        <view class="pane-eyebrow">SAVE THE DATE</view>
+        <view class="section-title">婚 礼 信 息</view>
+        <view class="info-date">{{wedding.date}}</view>
+        <view class="info-lunar" wx:if="{{wedding.lunar}}">{{wedding.lunar}}</view>
+        <block wx:if="{{!married}}">
+          <view class="countdown">
+            <view class="cd-box"><view class="cd-num">{{countdown.d}}</view><view class="cd-label">天</view></view>
+            <view class="cd-sep">:</view>
+            <view class="cd-box"><view class="cd-num">{{countdown.h}}</view><view class="cd-label">时</view></view>
+            <view class="cd-sep">:</view>
+            <view class="cd-box"><view class="cd-num">{{countdown.m}}</view><view class="cd-label">分</view></view>
+            <view class="cd-sep">:</view>
+            <view class="cd-box"><view class="cd-num">{{countdown.s}}</view><view class="cd-label">秒</view></view>
+          </view>
+        </block>
+        <view class="married-text" wx:else>🎊 我们已步入婚姻的殿堂，感谢您的祝福！</view>
+        <view class="venue-card">
+          <view class="venue-name">📍 {{wedding.venue}}</view>
+          <view class="venue-addr">{{wedding.address}}</view>
+          <view class="btn-row">
+            <button class="btn btn-red" bindtap="openMap">一键导航</button>
+          </view>
+        </view>
+      </view>
+    </swiper-item>
+
+    <!-- ④ 我们的故事：每组照片独立一屏 -->
+    <swiper-item wx:for="{{stories}}" wx:key="index">
+      <view class="pane {{current === 3 + index ? 'on' : ''}}">
+        <view class="story-no">CHAPTER {{index + 1}}</view>
+        <view class="section-title">我 们 的 故 事</view>
+        <view class="story {{item.reverse ? 'story-reverse' : ''}}">
+          <image class="story-img-main" src="{{item.a.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{index * 2}}" />
+          <image wx:if="{{item.b}}" class="story-img-sub" src="{{item.b.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{index * 2 + 1}}" />
+        </view>
+        <view class="story-quote">
+          <view class="quote-mark">"</view>
+          <view class="quote-text">{{item.quote}}</view>
+          <view class="quote-line"></view>
+        </view>
+      </view>
+    </swiper-item>
+
+    <!-- ⑤ 幸福瞬间（网格） -->
+    <swiper-item wx:if="{{photos.length > 0}}">
+      <view class="pane {{current === 3 + stories.length ? 'on' : ''}}">
+        <view class="section-title">幸 福 瞬 间</view>
+        <scroll-view class="gallery-scroll" scroll-y>
+          <view class="gallery">
+            <view class="gallery-item" wx:for="{{photos}}" wx:key="index"
+                  data-index="{{index}}" bindtap="onPhotoTap" hover-class="gallery-hover">
+              <image class="gallery-img" src="{{item.url}}" mode="aspectFill" lazy-load="{{true}}" />
+            </view>
+          </view>
+        </scroll-view>
+        <view class="gallery-tip">点击照片可查看大图</view>
+      </view>
+    </swiper-item>
+
+    <!-- ⑥ 亲友祝福弹幕 -->
+    <swiper-item>
+      <view class="pane {{current === 4 + stories.length ? 'on' : ''}}">
+        <view class="pane-eyebrow">BEST WISHES</view>
+        <view class="section-title">亲 友 祝 福</view>
+        <view class="danmaku-box">
+          <view class="danmaku-lane lane-0">
+            <text class="dm-item" wx:for="{{danmakuLanes[0]}}" wx:key="index" wx:if="{{danmakuLanes[0].length}}">{{item}}</text>
+          </view>
+          <view class="danmaku-lane lane-1">
+            <text class="dm-item dm-alt" wx:for="{{danmakuLanes[1]}}" wx:key="index" wx:if="{{danmakuLanes[1].length}}">{{item}}</text>
+          </view>
+          <view class="danmaku-lane lane-2">
+            <text class="dm-item dm-warm" wx:for="{{danmakuLanes[2]}}" wx:key="index" wx:if="{{danmakuLanes[2].length}}">{{item}}</text>
+          </view>
+        </view>
+
+        <view class="bless-meta" wx:if="{{blessingTotal !== null}}">
+          已收到 <text class="bless-num">{{blessingTotal}}</text> 条祝福
+        </view>
+        <view class="visit-meta" wx:if="{{visitTotal !== null && visitTotal > 0}}">
+          已有 <text class="bless-num">{{visitTotal}}</text> 位亲友看过这份请柬
+        </view>
+        <button class="btn btn-red bless-btn" bindtap="openBlessModal">❤ 送上我的祝福</button>
+      </view>
+    </swiper-item>
+
+    <!-- ⑦ 婚礼日程 + 到场回执 -->
+    <swiper-item>
+      <view class="pane {{current === 5 + stories.length ? 'on' : ''}}">
+        <view class="pane-eyebrow">WEDDING DAY</view>
+        <view class="section-title">婚 礼 日 程</view>
+        <view class="timeline">
+          <view class="tl-item" wx:for="{{wedding.schedule}}" wx:key="index">
+            <view class="tl-time">{{item.time}}</view>
+            <view class="tl-dot"></view>
+            <view class="tl-line" wx:if="{{index < wedding.schedule.length - 1}}"></view>
+            <view class="tl-label">{{item.label}}</view>
+          </view>
+        </view>
+
+        <view class="rsvp-card">
+          <view class="rsvp-title">敬 告 亲 友</view>
+          <view class="rsvp-desc">如您能来见证我们的幸福时刻，请告诉我们吧</view>
+          <view class="rsvp-opts">
+            <view class="rsvp-opt {{rsvpAttend === true ? 'opt-on' : ''}}" bindtap="onRsvpAttend" data-attend="yes">我参加</view>
+            <view class="rsvp-opt {{rsvpAttend === false ? 'opt-off-on' : ''}}" bindtap="onRsvpAttend" data-attend="no">暂时不到</view>
+          </view>
+          <view class="rsvp-guests" wx:if="{{rsvpAttend === true}}">
+            <text class="rg-label">出席人数（含本人）</text>
+            <view class="rg-ctrl">
+              <view class="rg-btn" bindtap="onGuestsSub">−</view>
+              <text class="rg-num">{{rsvpGuests}}</text>
+              <view class="rg-btn" bindtap="onGuestsAdd">＋</view>
+            </view>
+          </view>
+          <input class="rsvp-name" placeholder="怎么称呼您？（选填）" maxlength="20" value="{{rsvpName}}" bindinput="onRsvpName" />
+          <button class="btn btn-red rsvp-btn" bindtap="submitRsvp">{{rsvpMine ? '更新我的回执' : '提交回执'}}</button>
+          <view class="rsvp-stats" wx:if="{{rsvpStats}}">
+            已有 <text class="bless-num">{{rsvpStats.attending}}</text> 位亲友确认出席 · 共 <text class="bless-num">{{rsvpStats.guests}}</text> 人
+          </view>
+        </view>
+      </view>
+    </swiper-item>
+
+    <!-- ⑧ 尾页 -->
+    <swiper-item>
+      <view class="pane pane-ending {{current === 6 + stories.length ? 'on' : ''}}">
+        <view class="ending-mono">{{monogram}}</view>
+        <view class="ending-names">{{wedding.groom}} & {{wedding.bride}}</view>
+        <view class="ending-eyebrow">OUR WEDDING DAY</view>
+        <view class="ending-text">期待与您相聚</view>
+        <view class="ending-date">{{wedding.date}} · {{wedding.venue}}</view>
+        <button class="share-btn" open-type="share">把这份请柬分享给亲友</button>
+      </view>
+    </swiper-item>
+  </swiper>
+</view>
+
+<!-- 祝福弹窗 -->
+<view class="modal-mask" wx:if="{{showBlessModal}}" bindtap="closeBlessModal">
+  <view class="modal" catchtap="">
+    <view class="modal-title">送 上 祝 福</view>
+    <input class="modal-input" placeholder="怎么称呼您？（如：表哥）" maxlength="20" value="{{blessName}}" bindinput="onNameInput" />
+    <textarea class="modal-textarea" placeholder="写下您的祝福…（如：新婚快乐，百年好合！）" maxlength="100" value="{{blessText}}" bindinput="onTextInput" />
+    <view class="modal-btns">
+      <button class="btn btn-line" bindtap="closeBlessModal">取消</button>
+      <button class="btn btn-red" bindtap="submitBlessing">送出祝福</button>
+    </view>
+  </view>
+</view>

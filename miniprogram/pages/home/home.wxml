@@ -1,0 +1,96 @@
+<view class="home">
+
+  <!-- 顶部照片海报：照片向下渐隐，融入奶油色页面底 -->
+  <view class="poster">
+    <image class="poster-img" src="{{hero}}" mode="aspectFill" />
+    <view class="poster-fade"></view>
+  </view>
+
+  <!-- 背景音乐按钮（top 由胶囊位置动态计算，避免被「…/关闭」挡住） -->
+  <view class="music {{musicPlaying ? 'music-playing' : ''}}" style="{{musicTop ? 'top:' + musicTop : ''}}" wx:if="{{wedding.musicUrl}}" bindtap="toggleMusic">
+    <image class="music-icon" src="{{icons.musicOn}}" mode="aspectFit" />
+  </view>
+
+  <!-- 海报上的文案（压在渐隐区上） -->
+  <view class="poster-content">
+    <view class="p-names">{{wedding.bride}} <text class="p-amp">&</text> {{wedding.groom}}</view>
+    <view class="p-en">We're getting married</view>
+    <view class="p-date-pill">{{dateText}} · {{timeText}} · {{wedding.venueTag}}</view>
+
+    <!-- 大号倒计时 -->
+    <view class="p-count" wx:if="{{!married}}">
+      <view class="p-days">
+        <text class="p-days-num">{{countdown.d}}</text>
+        <text class="p-days-unit">天</text>
+      </view>
+      <view class="p-cd-right">
+        <view class="p-cd-label">距离婚礼还有</view>
+        <view class="p-hms">{{countdown.h}} : {{countdown.m}} : {{countdown.s}}</view>
+      </view>
+    </view>
+    <view class="p-married" wx:else>🎊 我们已步入婚姻的殿堂，感谢您的祝福！</view>
+  </view>
+
+  <!-- 主场地卡（深棕 + 金色一键导航钮） -->
+  <view class="venue" bindtap="openMap" hover-class="venue-hover">
+    <view class="v-info">
+      <view class="v-eyebrow">主场地 MAIN VENUE</view>
+      <view class="v-name">{{wedding.venueTag}}</view>
+      <view class="v-addr">{{wedding.address}}</view>
+    </view>
+    <view class="v-nav">一键导航</view>
+  </view>
+
+  <!-- 邀请信（引号排版，参考 IMG_6812） -->
+  <view class="letter">
+    <view class="lt-mark">“</view>
+    <view class="lt-text">{{letterText}}</view>
+    <view class="lt-mark">”</view>
+  </view>
+
+  <!-- 接下来做什么 NEXT STEPS -->
+  <view class="steps">
+    <view class="st-title-row">
+      <view class="st-line"></view>
+      <view class="st-title">接下来做什么</view>
+      <view class="st-line"></view>
+    </view>
+    <view class="st-sub">NEXT STEPS</view>
+    <view class="st-cards">
+      <view class="st-card" bindtap="goSchedule" hover-class="st-card-hover">
+        <view class="st-icon">📜</view>
+        <view class="st-label">婚礼流程</view>
+        <view class="st-en">TIMELINE</view>
+        <view class="st-arrow">›</view>
+      </view>
+      <view class="st-card" bindtap="goAlbum" hover-class="st-card-hover">
+        <view class="st-icon">📷</view>
+        <view class="st-label">婚纱相册</view>
+        <view class="st-en">ALBUM</view>
+        <view class="st-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 婚礼相册（预览条） -->
+  <view class="albums">
+    <view class="al-head">
+      <view class="al-title">婚礼相册</view>
+      <view class="al-more" bindtap="goAlbum" hover-class="al-more-hover">查看全部 <text class="al-more-arrow">›</text></view>
+    </view>
+    <scroll-view class="al-strip" scroll-x enhanced show-scrollbar="{{false}}">
+      <image class="al-thumb" wx:for="{{albumPhotos}}" wx:key="*this" src="{{item}}" mode="aspectFill" bindtap="goAlbum" />
+    </scroll-view>
+  </view>
+
+  <!-- 页脚祝福 -->
+  <view class="foot">
+    <view class="ft-deco">
+      <view class="ft-line"></view>
+      <view class="ft-heart">❤️</view>
+      <view class="ft-line ft-line-r"></view>
+    </view>
+    <view class="ft-text">祝有爱者更爱，独立者更自由。</view>
+    <view class="ft-year">· {{ftYear}} ·</view>
+  </view>
+</view>

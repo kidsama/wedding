@@ -1,0 +1,37 @@
+<view class="al-page">
+
+  <!-- ========== 相册列表 ========== -->
+  <block wx:if="{{mode === 'list'}}">
+    <view class="al-cards">
+      <view class="al-card" wx:for="{{albums}}" wx:key="index"
+            data-index="{{index}}" bindtap="openAlbum" hover-class="al-card-hover">
+        <view class="al-cover-wrap">
+          <image class="al-cover" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}" />
+          <!-- 张数角标：封面右下角 -->
+          <view class="al-count">{{item.count}} 张</view>
+        </view>
+        <view class="al-info">
+          <view class="al-name">{{item.name}}</view>
+          <view class="al-desc">记录属于我们的美好瞬间</view>
+          <view class="al-view">查看 ›</view>
+        </view>
+      </view>
+    </view>
+    <view class="al-end" wx:if="{{albums.length > 0}}">— 已经到底啦 —</view>
+  </block>
+
+  <!-- ========== 相册内照片 ========== -->
+  <block wx:else>
+    <view class="al-back" bindtap="backToList" hover-class="al-back-hover">‹ 相册列表</view>
+    <view class="al-album-name">{{currentAlbum.name}}</view>
+
+    <view class="al-grid">
+      <view class="al-item" wx:for="{{currentPhotos}}" wx:key="index"
+            data-index="{{index}}" bindtap="onPhotoTap" hover-class="al-hover">
+        <image class="al-img" src="{{item.url}}" mode="aspectFill" lazy-load="{{true}}" />
+      </view>
+    </view>
+
+    <view class="al-tip">共 {{currentPhotos.length}} 张美好瞬间 · 点击查看大图</view>
+  </block>
+</view>

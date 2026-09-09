@@ -23,3 +23,25 @@ class Blessing(db.Model):
     name = db.Column(db.String(20), nullable=False)      # 称呼
     message = db.Column(db.String(100), nullable=False)  # 祝福语
     created_at = db.Column('createdAt', db.TIMESTAMP, nullable=False, default=datetime.now())
+
+
+# 到场回执表（一人一条，按 visitor_key 覆盖更新）
+class Rsvp(db.Model):
+    __tablename__ = 'Rsvps'
+
+    id = db.Column(db.Integer, primary_key=True)
+    visitor_key = db.Column(db.String(64), nullable=False, index=True)  # 前端生成的访客标识
+    name = db.Column(db.String(20), default='')                         # 称呼（选填）
+    attend = db.Column(db.Boolean, default=True)                        # 是否出席
+    guests = db.Column(db.Integer, default=1)                           # 出席人数（含本人）
+    created_at = db.Column('createdAt', db.TIMESTAMP, nullable=False, default=datetime.now())
+    updated_at = db.Column('updatedAt', db.TIMESTAMP, nullable=False, default=datetime.now())
+
+
+# 访问记录表
+class Visit(db.Model):
+    __tablename__ = 'Visits'
+
+    id = db.Column(db.Integer, primary_key=True)
+    visitor_key = db.Column(db.String(64), nullable=False, index=True)  # 前端生成的访客标识
+    created_at = db.Column('createdAt', db.TIMESTAMP, nullable=False, default=datetime.now())

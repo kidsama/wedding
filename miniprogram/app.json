@@ -1,22 +1,43 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/home/home",
+    "pages/invite/invite",
+    "pages/album/album",
+    "pages/schedule/schedule"
   ],
   "window": {
     "navigationBarTitleText": "婚礼邀请函",
-    "navigationBarBackgroundColor": "#faf7f2",
+    "navigationBarBackgroundColor": "#fdf6e9",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#faf7f2",
+    "backgroundColor": "#fdf6e9",
     "backgroundTextStyle": "light"
   },
-  "permission": {
-    "scope.userLocation": {
-      "desc": "用于查看婚礼酒店的位置并进行导航"
-    }
+  "tabBar": {
+    "color": "#b0a28c",
+    "selectedColor": "#e2402c",
+    "backgroundColor": "#fffdf8",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-on.png"
+      },
+      {
+        "pagePath": "pages/invite/invite",
+        "text": "邀请函",
+        "iconPath": "images/tab-invite.png",
+        "selectedIconPath": "images/tab-invite-on.png"
+      },
+      {
+        "pagePath": "pages/album/album",
+        "text": "相册",
+        "iconPath": "images/tab-album.png",
+        "selectedIconPath": "images/tab-album-on.png"
+      }
+    ]
   },
-  "requiredPrivateInfos": [
-    "chooseLocation"
-  ],
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"

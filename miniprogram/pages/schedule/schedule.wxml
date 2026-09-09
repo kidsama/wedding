@@ -1,0 +1,49 @@
+<view class="sc-page">
+
+  <view class="sc-eyebrow">WEDDING DAY</view>
+  <view class="sc-title">婚 礼 流 程</view>
+  <view class="sc-date">{{wedding.date}}<text wx:if="{{wedding.lunar}}"> · {{wedding.lunar}}</text></view>
+
+  <!-- 时间线 -->
+  <view class="sc-card">
+    <view class="timeline">
+      <view class="tl-item" wx:for="{{wedding.schedule}}" wx:key="index">
+        <view class="tl-time">{{item.time}}</view>
+        <view class="tl-dot"></view>
+        <view class="tl-line" wx:if="{{index < wedding.schedule.length - 1}}"></view>
+        <view class="tl-label">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 场地信息 -->
+  <view class="sc-card sc-venue">
+    <view class="sc-venue-name">📍 {{wedding.venue}}</view>
+    <view class="sc-venue-addr">{{wedding.address}}</view>
+  </view>
+
+  <!-- 到场回执 -->
+  <view class="sc-card">
+    <view class="rsvp-title">敬 告 亲 友</view>
+    <view class="rsvp-desc">如您能来见证我们的幸福时刻，请告诉我们吧</view>
+    <view class="rsvp-opts">
+      <view class="rsvp-opt {{rsvpAttend === true ? 'opt-on' : ''}}" bindtap="onRsvpAttend" data-attend="yes">我参加</view>
+      <view class="rsvp-opt {{rsvpAttend === false ? 'opt-off-on' : ''}}" bindtap="onRsvpAttend" data-attend="no">暂时不到</view>
+    </view>
+    <view class="rsvp-guests" wx:if="{{rsvpAttend === true}}">
+      <text class="rg-label">出席人数（含本人）</text>
+      <view class="rg-ctrl">
+        <view class="rg-btn" bindtap="onGuestsSub">−</view>
+        <text class="rg-num">{{rsvpGuests}}</text>
+        <view class="rg-btn" bindtap="onGuestsAdd">＋</view>
+      </view>
+    </view>
+    <input class="rsvp-name" placeholder="怎么称呼您？（选填）" maxlength="20" value="{{rsvpName}}" bindinput="onRsvpName" />
+    <button class="sc-btn" bindtap="submitRsvp">{{rsvpMine ? '更新我的回执' : '提交回执'}}</button>
+    <view class="rsvp-stats" wx:if="{{rsvpStats}}">
+      已有 <text class="rsvp-num">{{rsvpStats.attending}}</text> 位亲友确认出席 · 共 <text class="rsvp-num">{{rsvpStats.guests}}</text> 人
+    </view>
+  </view>
+
+  <view class="sc-foot">期待与您相聚 ❤</view>
+</view>

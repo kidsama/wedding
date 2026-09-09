@@ -1,4 +1,11 @@
-const { API_BASE, WEDDING } = require('../../utils/config');
+const { API_BASE, WEDDING, ASSET_BASE, ASSETS } = require('../../utils/config');
+const music = require('../../utils/music');
+const { parseWeddingDate, pad, getVisitorKey } = require('../../utils/common');
+
+// 云存储素材完整地址
+const ICONS = {
+  musicOn: ASSET_BASE + ASSETS.musicOn
+};
 
 // 兜底照片列表（云托管 /api/photos 请求失败时使用）
 const FALLBACK_PHOTOS = Array.from({ length: 12 }, (_, i) => ({
@@ -26,15 +33,6 @@ const DEFAULT_BLESSINGS = [
   { name: '亲友', message: '幸福美满，早生贵子！' }
 ];
 
-// iOS 不支持 'YYYY-MM-DD HH:mm' 直接 new Date，把 '-' 换成 '/'
-function parseWeddingDate(str) {
-  return new Date(String(str).replace(/-/g, '/')).getTime();
-}
-
-function pad(n) {
-  return String(n).padStart(2, '0');
-}
-
 // 尾页花押：双方名字首字母
 const MONOGRAM = `${WEDDING.groom[0] || ''} & ${WEDDING.bride[0] || ''}`;
 
@@ -42,6 +40,7 @@ Page({
   data: {
     wedding: WEDDING,
     monogram: MONOGRAM,
+    icons: ICONS,
     current: 0,
     photos: [],
     heroUrl: '',
@@ -50,34 +49,160 @@ Page({
     married: false,
     danmakuLanes: [[], [], []],
     blessingTotal: null,
+    visitTotal: null,
     showBlessModal: false,
     blessName: '',
     blessText: '',
-    musicPlaying: false
+    musicPlaying: false,
+    // 到场回执
+    rsvpAttend: null,      // null=未选择 true=参加 false=不参加
+    rsvpGuests: 1,
+    rsvpName: '',
+    rsvpStats: null,
+    rsvpMine: false
   },
 
-  onLoad() {
+  onLoad(options) {
+    // 通过分享卡片进入时，隐藏底部菜单栏，呈现全屏沉浸式请柬
+    this._shareEntry = !!(options && options.entry === 'share');
+    this._tabBarPending = this._shareEntry;
+    if (this._shareEntry) this.hideTabBarForShare();
+    this._vk = getVisitorKey();
+    this.setData({ musicPlaying: music.isPlaying() });
+    this._unsubMusic = music.subscribe((p) => this.setData({ musicPlaying: p }));
+    this.sendVisit();
+    this.fetchVisitStats();
     this.fetchPhotos();
     this.fetchBlessings();
+    this.fetchRsvp();
+    this.fetchRsvpStats();
     this.initCountdown();
-    this.initMusic();
+  },
+
+  onShow() {
+    // onLoad 里调用可能因时机过早未生效，首次 onShow 再补一次；
+    // 之后切 Tab 回来不再触发，避免把正常浏览时的菜单栏也藏掉
+    if (this._tabBarPending) this.hideTabBarForShare();
+  },
+
+  hideTabBarForShare() {
+    this._tabBarPending = false;
+    wx.hideTabBar({ animation: false, fail: () => {} });
   },
 
   onUnload() {
     if (this._timer) clearInterval(this._timer);
-    if (this._audio) this._audio.destroy();
-  },
-
-  onHide() {
-    if (this._audio && this.data.musicPlaying) {
-      this._audio.pause();
-      this.setData({ musicPlaying: false });
-    }
+    if (this._unsubMusic) this._unsubMusic();
   },
 
   // 翻页追踪：驱动各屏入场渐显动画
   onSwiperChange(e) {
     this.setData({ current: e.detail.current });
+  },
+
+  // ========== 访问记录 ==========
+  sendVisit() {
+    wx.request({
+      url: `${API_BASE}/api/visit`,
+      method: 'POST',
+      data: { visitorKey: this._vk },
+      timeout: 8000
+    });
+  },
+
+  fetchVisitStats() {
+    wx.request({
+      url: `${API_BASE}/api/visit/stats`,
+      method: 'GET',
+      timeout: 8000,
+      success: (res) => {
+        if (res.data && res.data.code === 0 && res.data.data) {
+          this.setData({ visitTotal: res.data.data.unique || 0 });
+        }
+      }
+    });
+  },
+
+  // ========== 到场回执 ==========
+  fetchRsvp() {
+    wx.request({
+      url: `${API_BASE}/api/rsvp?visitorKey=${encodeURIComponent(this._vk)}`,
+      method: 'GET',
+      timeout: 8000,
+      success: (res) => {
+        const d = res.data && res.data.data;
+        if (res.data && res.data.code === 0 && d) {
+          this.setData({
+            rsvpAttend: !!d.attend,
+            rsvpGuests: d.guests || 1,
+            rsvpName: d.name || '',
+            rsvpMine: true
+          });
+        }
+      }
+    });
+  },
+
+  fetchRsvpStats() {
+    wx.request({
+      url: `${API_BASE}/api/rsvp/stats`,
+      method: 'GET',
+      timeout: 8000,
+      success: (res) => {
+        if (res.data && res.data.code === 0 && res.data.data) {
+          this.setData({ rsvpStats: res.data.data });
+        }
+      }
+    });
+  },
+
+  onRsvpAttend(e) {
+    this.setData({ rsvpAttend: e.currentTarget.dataset.attend === 'yes' });
+  },
+
+  onRsvpName(e) {
+    this.setData({ rsvpName: e.detail.value });
+  },
+
+  onGuestsAdd() {
+    this.setData({ rsvpGuests: Math.min(20, this.data.rsvpGuests + 1) });
+  },
+
+  onGuestsSub() {
+    this.setData({ rsvpGuests: Math.max(1, this.data.rsvpGuests - 1) });
+  },
+
+  submitRsvp() {
+    const attend = this.data.rsvpAttend;
+    if (attend === null) {
+      return wx.showToast({ title: '请先选择是否出席', icon: 'none' });
+    }
+    wx.request({
+      url: `${API_BASE}/api/rsvp`,
+      method: 'POST',
+      data: {
+        visitorKey: this._vk,
+        name: this.data.rsvpName.trim(),
+        attend,
+        guests: attend ? this.rsvpGuestsSafe() : 0
+      },
+      timeout: 8000,
+      success: (res) => {
+        if (res.data && res.data.code === 0) {
+          wx.showToast({ title: attend ? '期待您的到来 ❤' : '已收到您的回复', icon: 'none' });
+          this.setData({ rsvpMine: true });
+          this.fetchRsvpStats();
+        } else {
+          wx.showToast({ title: (res.data && res.data.errorMsg) || '提交失败', icon: 'none' });
+        }
+      },
+      fail: () => wx.showToast({ title: '网络不太顺畅', icon: 'none' })
+    });
+  },
+
+  rsvpGuestsSafe() {
+    const g = Number(this.data.rsvpGuests);
+    return isNaN(g) ? 1 : Math.max(1, Math.min(20, g));
   },
 
   // ========== 照片列表 + 艺术分组 ==========
@@ -147,7 +272,7 @@ Page({
     this._timer = setInterval(tick, 1000);
   },
 
-  // ========== 地点导航（填了经纬度直接导航；没填则让用户在地图上选一次） ==========
+  // ========== 地点导航（wx.openLocation 个人小程序可用，无需申请权限；需在 config.js 配好经纬度） ==========
   openMap() {
     const { latitude, longitude, venue, address } = WEDDING;
     if (Number(latitude) && Number(longitude)) {
@@ -160,32 +285,12 @@ Page({
       });
       return;
     }
-    wx.chooseLocation({
-      success: (res) => {
-        wx.openLocation({
-          latitude: res.latitude,
-          longitude: res.longitude,
-          name: res.name || venue,
-          address: res.address || address,
-          scale: 18
-        });
-      },
-      fail: () => {
-        wx.showToast({ title: '未选择位置', icon: 'none' });
-      }
-    });
-  },
-
-  saveDate() {
-    const ts = Math.floor(parseWeddingDate(WEDDING.date) / 1000);
-    if (!ts) return;
-    wx.addPhoneCalendar({
-      title: `${WEDDING.groom} ❤ ${WEDDING.bride} 婚礼`,
-      startTime: ts,
-      allDay: false,
-      description: `${WEDDING.venue}\n${WEDDING.address}`,
-      success: () => wx.showToast({ title: '已添加到手机日历', icon: 'success' }),
-      fail: () => wx.showToast({ title: '未授权日历权限', icon: 'none' })
+    // 未配置经纬度：弹窗展示地址（不写剪切板，避免隐私声明）
+    wx.showModal({
+      title: '婚礼地点',
+      content: `${venue}\n${address}`,
+      showCancel: false,
+      confirmText: '知道了'
     });
   },
 
@@ -257,32 +362,16 @@ Page({
     });
   },
 
-  // ========== 背景音乐 ==========
-  initMusic() {
-    if (!WEDDING.musicUrl) return;
-    this._audio = wx.createInnerAudioContext();
-    this._audio.src = WEDDING.musicUrl;
-    this._audio.loop = true;
-    this._audio.onError(() => this.setData({ musicPlaying: false }));
-    this._audio.play();
-    this.setData({ musicPlaying: true });
-  },
-
+  // ========== 背景音乐（全局单例，切 Tab 不间断） ==========
   toggleMusic() {
-    if (!this._audio) return;
-    if (this.data.musicPlaying) {
-      this._audio.pause();
-    } else {
-      this._audio.play();
-    }
-    this.setData({ musicPlaying: !this.data.musicPlaying });
+    music.toggle();
   },
 
   // ========== 分享卡片 ==========
   onShareAppMessage() {
     return {
       title: `诚挚邀请您参加 ${WEDDING.groom} ❤ ${WEDDING.bride} 的婚礼`,
-      path: '/pages/index/index',
+      path: '/pages/invite/invite?entry=share',
       imageUrl: this.data.heroUrl
     };
   },
@@ -290,7 +379,7 @@ Page({
   onShareTimeline() {
     return {
       title: `诚挚邀请您参加 ${WEDDING.groom} ❤ ${WEDDING.bride} 的婚礼`,
-      query: '',
+      query: 'entry=share',
       imageUrl: this.data.heroUrl
     };
   }

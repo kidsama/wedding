@@ -1,0 +1,454 @@
+/* ========== 首页：海报渐隐风（参考 IMG_6810） ========== */
+page {
+  background: #fdf6e9;
+}
+
+.home {
+  min-height: 100vh;
+  background: #fdf6e9;
+  overflow: hidden;
+}
+
+/* ---- 顶部照片海报 ---- */
+.poster {
+  position: relative;
+  width: 100%;
+  height: 1180rpx;
+  overflow: hidden;
+}
+
+/* 图保持原始缩放（750×1180，不放大），整体上移 156rpx：
+   裁掉顶部约 13% 留白、主体上移；调「往上移多少」就改 top 的数值 */
+.poster-img {
+  position: absolute;
+  left: 0;
+  top: -156rpx;
+  width: 100%;
+  height: 1180rpx;
+  display: block;
+}
+
+/* 照片底部渐隐，无缝融入奶油色页面底：
+   遮罩向下多延伸 40rpx 盖过照片底边（1024rpx），且在 80% 处就已完全变奶油色，
+   照片底边的接缝被埋进不透明区，杜绝亚像素渲染露出的细线 */
+.poster-fade {
+  position: absolute;
+  left: 0;
+  bottom: 116rpx;
+  width: 100%;
+  height: 560rpx;
+  background: linear-gradient(180deg,
+    rgba(253, 246, 233, 0) 0%,
+    rgba(253, 246, 233, 0.6) 50%,
+    #fdf6e9 80%,
+    #fdf6e9 100%);
+  pointer-events: none;
+}
+
+/* ---- 海报上的文案（绝对定位浮层，不占文档流） ---- */
+/* 名字行中心 = 50vh + 50rpx（按用户要求整体下移 50，不再压屏幕正中）；
+   下方场地卡按正常文档流排在海报(1180rpx)之后，永远不会盖到照片上 */
+.poster-content {
+  position: absolute;
+  top: calc(50vh - 22rpx);
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 0 44rpx;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* 新人名字：白色大字，压在照片上（系统默认字体） */
+.p-names {
+  margin-top: 30rpx;
+  font-size: 60rpx;
+  line-height: 84rpx;   /* 固定行高，保证「正中」计算准确 */
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 6rpx;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.55), 0 8rpx 30rpx rgba(0, 0, 0, 0.4);
+}
+
+.p-amp {
+  font-family: "Georgia", serif;
+  font-size: 48rpx;
+  font-weight: normal;
+  margin: 0 12rpx;
+  opacity: 0.95;
+}
+
+.p-en {
+  margin-top: 14rpx;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-style: italic;
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 3rpx;
+  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
+}
+
+/* 日期胶囊：深棕半透明底，和照片/奶油底都拉开层次 */
+.p-date-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 32rpx;
+  padding: 14rpx 34rpx;
+  border-radius: 40rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.4);
+  background: rgba(36, 29, 24, 0.45);
+  font-size: 26rpx;
+  color: #ffffff;
+  letter-spacing: 2rpx;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.35);
+}
+
+/* ---- 大号倒计时：左侧「N天」大数字 + 右侧时分秒 ---- */
+/* 紧跟日期胶囊（照片底边接缝已埋进不透明渐变区，倒计时可安全上移贴近文案） */
+.p-count {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-top: 60rpx;
+}
+
+.p-days {
+  display: flex;
+  align-items: baseline;
+}
+
+.p-days-num {
+  font-size: 110rpx;
+  font-weight: 400;
+  color: #55493f;
+  line-height: 1;
+  font-family: "Helvetica Neue", "PingFang SC", sans-serif;
+}
+
+.p-days-unit {
+  font-size: 30rpx;
+  color: #55493f;
+  margin-left: 10rpx;
+}
+
+.p-cd-right {
+  margin-left: 32rpx;
+  margin-bottom: 8rpx;
+  text-align: left;
+}
+
+.p-cd-label {
+  font-size: 24rpx;
+  color: #8a7d6f;
+  letter-spacing: 3rpx;
+}
+
+.p-hms {
+  margin-top: 8rpx;
+  font-size: 44rpx;
+  font-weight: 400;
+  color: #6b5f54;
+  letter-spacing: 4rpx;
+  line-height: 1;
+  font-family: "Helvetica Neue", "PingFang SC", sans-serif;
+}
+
+.p-married {
+  margin-top: 40rpx;
+  font-size: 30rpx;
+  color: #55493f;
+  letter-spacing: 2rpx;
+}
+
+/* ---- 主场地卡（深棕 + 金色导航钮） ---- */
+/* margin-top 76 = 原 26 + 文字整体下移量 50（与 .poster-content 的下移保持同步，
+   保证倒计时与场地卡的间距在所有机型不变；再调下移量时两处要一起改） */
+.venue {
+  display: flex;
+  align-items: center;
+  margin: 76rpx 36rpx 0;
+  padding: 34rpx 30rpx;
+  background: #241d18;
+  border-radius: 24rpx;
+}
+
+.venue-hover {
+  transform: scale(0.985);
+  transition: transform 0.15s ease;
+}
+
+.v-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.v-eyebrow {
+  font-size: 20rpx;
+  color: #c9b294;
+  letter-spacing: 3rpx;
+}
+
+.v-name {
+  margin-top: 10rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #fdf6e9;
+  letter-spacing: 2rpx;
+}
+
+.v-addr {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #a8988a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v-nav {
+  flex-shrink: 0;
+  margin-left: 24rpx;
+  padding: 18rpx 30rpx;
+  background: #d3a97c;
+  color: #3d2b18;
+  font-size: 26rpx;
+  font-weight: 600;
+  border-radius: 40rpx;
+  letter-spacing: 2rpx;
+}
+
+/* ---- 邀请信（引号排版，参考 IMG_6812） ---- */
+.letter {
+  margin-top: 90rpx;
+  padding: 0 70rpx;
+  text-align: center;
+}
+
+.lt-mark {
+  font-family: "Georgia", serif;
+  font-size: 80rpx;
+  line-height: 1;
+  color: #cfa670;
+}
+
+.lt-text {
+  margin: 24rpx 0;
+  font-size: 30rpx;
+  line-height: 2.2;
+  letter-spacing: 2rpx;
+  color: #4a4036;
+  text-align: justify;
+  text-align-last: center;
+}
+
+/* ---- 接下来做什么 NEXT STEPS ---- */
+.steps {
+  margin-top: 110rpx;
+  padding: 0 36rpx;
+}
+
+.st-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.st-line {
+  width: 44rpx;
+  height: 2rpx;
+  background: #d9cdb8;
+  margin: 0 24rpx;
+}
+
+.st-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #3d332b;
+  letter-spacing: 2rpx;
+}
+
+.st-sub {
+  margin-top: 10rpx;
+  text-align: center;
+  font-size: 20rpx;
+  letter-spacing: 6rpx;
+  color: #c9a06c;
+}
+
+.st-cards {
+  margin-top: 44rpx;
+  display: flex;
+}
+
+.st-card {
+  flex: 1;
+  background: #fbf3e2;
+  border-radius: 18rpx;
+  padding: 34rpx 0 26rpx;
+  text-align: center;
+}
+
+.st-card + .st-card {
+  margin-left: 20rpx;
+}
+
+.st-card-hover {
+  transform: scale(0.96);
+  transition: transform 0.15s ease;
+}
+
+.st-icon {
+  font-size: 52rpx;
+  line-height: 1;
+}
+
+.st-label {
+  margin-top: 16rpx;
+  font-size: 27rpx;
+  font-weight: 600;
+  color: #3d332b;
+}
+
+.st-en {
+  margin-top: 8rpx;
+  font-size: 18rpx;
+  letter-spacing: 3rpx;
+  color: #b0a28c;
+}
+
+.st-arrow {
+  margin-top: 14rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #e2402c;
+}
+
+/* ---- 婚礼相册（标题 + 横向预览条） ---- */
+.albums {
+  margin-top: 100rpx;
+}
+
+.al-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36rpx;
+}
+
+.al-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3d332b;
+  letter-spacing: 2rpx;
+}
+
+.al-more {
+  font-size: 24rpx;
+  color: #9d968a;
+}
+
+.al-more-arrow {
+  color: #e2402c;
+  font-size: 26rpx;
+  font-weight: bold;
+}
+
+.al-strip {
+  margin-top: 26rpx;
+  padding-left: 20rpx;
+  white-space: nowrap;
+}
+
+.al-thumb {
+  width: 220rpx;
+  height: 220rpx;
+  border-radius: 14rpx;
+  margin-right: 16rpx;
+  display: inline-block;
+}
+
+/* ---- 页脚祝福 ---- */
+.foot {
+  padding: 130rpx 0 100rpx;
+  text-align: center;
+}
+
+/* 金色渐隐细线夹红心 */
+.ft-deco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ft-line {
+  width: 64rpx;
+  height: 1rpx;
+  background: linear-gradient(to right, rgba(211, 169, 124, 0), rgba(211, 169, 124, 0.8));
+}
+
+.ft-line-r {
+  background: linear-gradient(to left, rgba(211, 169, 124, 0), rgba(211, 169, 124, 0.8));
+}
+
+.ft-heart {
+  font-size: 30rpx;
+  line-height: 1;
+  margin: 0 22rpx;
+  animation: heartbeat 2.4s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+
+.ft-text {
+  margin-top: 30rpx;
+  font-size: 28rpx;
+  color: #8a8172;
+  letter-spacing: 5rpx;
+  line-height: 1.9;
+}
+
+.ft-year {
+  margin-top: 24rpx;
+  font-size: 20rpx;
+  color: #c6bdae;
+  letter-spacing: 10rpx;
+}
+
+/* ========== 背景音乐按钮 ========== */
+.music {
+  position: fixed;
+  top: 200rpx;   /* 兜底位置：正常由 JS 按胶囊实际位置精确设置 */
+  right: 34rpx;
+  z-index: 999;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 50%;
+  background: rgba(36, 29, 24, 0.35);   /* 深棕半透明，比上一版 0.45 稍浅更通透 */
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.music-icon {
+  width: 52rpx;
+  height: 52rpx;
+}
+
+.music:not(.music-playing) .music-icon {
+  opacity: 0.55;
+}
+
+.music-playing {
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

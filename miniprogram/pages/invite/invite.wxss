@@ -1,0 +1,817 @@
+/* ========== 全局 ========== */
+.page {
+  width: 100vw;
+  height: 100vh;
+  background: #fdf6e9;
+}
+
+.full-swiper {
+  width: 100%;
+  height: 100%;
+}
+
+/* 每一屏：垂直居中排版 + 入场渐显 */
+.pane {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 50rpx 90rpx;
+  box-sizing: border-box;
+  background: #fdf6e9;
+  color: #4a3a32;
+  opacity: 0;
+  transform: translateY(36rpx);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.pane.on {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== 飘落花瓣 ========== */
+.petals {
+  position: fixed;
+  inset: 0;
+  z-index: 997;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -40rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 120% 0 120% 0;
+  background: rgba(240, 169, 155, 0.55);
+  animation: fall linear infinite;
+}
+
+.p2 { background: rgba(226, 64, 44, 0.28); }
+.p5 { background: rgba(240, 178, 122, 0.45); }
+.p7 { width: 14rpx; height: 14rpx; }
+
+.p1 { left: 8%;  animation-duration: 9s;    animation-delay: 0s; }
+.p2 { left: 22%; animation-duration: 12s;   animation-delay: 3s; }
+.p3 { left: 38%; animation-duration: 10s;   animation-delay: 6s; }
+.p4 { left: 55%; animation-duration: 13s;   animation-delay: 1.5s; }
+.p5 { left: 70%; animation-duration: 11s;   animation-delay: 4.5s; }
+.p6 { left: 85%; animation-duration: 14s;   animation-delay: 7s; }
+.p7 { left: 47%; animation-duration: 9.5s;  animation-delay: 8.5s; }
+
+@keyframes fall {
+  0%   { transform: translateY(-6vh) rotate(0deg);    opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 0.6; }
+  100% { transform: translateY(108vh) rotate(560deg); opacity: 0; }
+}
+
+/* ========== 背景音乐按钮 ========== */
+.music {
+  position: fixed;
+  top: 120rpx;
+  right: 34rpx;
+  z-index: 999;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 50%;
+  background: #e2402c;
+  box-shadow: 0 4rpx 16rpx rgba(226, 64, 44, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.music-icon {
+  width: 52rpx;
+  height: 52rpx;
+}
+
+/* 未播放时半透明提示可点击 */
+.music:not(.music-playing) .music-icon {
+  opacity: 0.55;
+}
+
+.music-playing {
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ========== 通用标题 ========== */
+.pane-eyebrow {
+  font-size: 20rpx;
+  letter-spacing: 8rpx;
+  color: #dba385;
+  margin-bottom: 12rpx;
+  font-family: "Georgia", serif;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 40rpx;
+  letter-spacing: 12rpx;
+  color: #e2402c;
+  margin-bottom: 34rpx;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+  font-weight: bold;
+}
+
+/* ========== 通用按钮 ========== */
+.btn {
+  font-size: 28rpx;
+  border-radius: 44rpx;
+  line-height: 2.6;
+  padding: 0 32rpx;
+  margin: 0;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-red {
+  flex: 1;
+  background: linear-gradient(135deg, #ea5a42 0%, #e2402c 100%);
+  color: #fff8ef;
+  letter-spacing: 3rpx;
+  box-shadow: 0 6rpx 20rpx rgba(226, 64, 44, 0.3);
+}
+
+.btn-line {
+  flex: 1;
+  margin-left: 24rpx;
+  background: #fffdf8;
+  color: #e2402c;
+  border: 1rpx solid #eec9b8;
+  letter-spacing: 3rpx;
+  box-sizing: border-box;
+}
+
+/* ========== ① 封面 ========== */
+.cover {
+  background: #fdf6e9;
+}
+
+.cover-arc {
+  display: flex;
+  justify-content: center;
+  margin-top: -20rpx;
+}
+
+.arc-l {
+  display: inline-block;
+  font-size: 84rpx;
+  font-weight: bold;
+  color: #e2402c;
+  font-family: "Comic Sans MS", "Chalkboard SE", "YouYuan", "Yuanti SC", sans-serif;
+  letter-spacing: 2rpx;
+  text-shadow: 1rpx 2rpx 0 rgba(226, 64, 44, 0.25);
+}
+
+.cover-tag {
+  margin-top: 44rpx;
+  font-size: 32rpx;
+  letter-spacing: 6rpx;
+  color: #8a5a4a;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.cover-title-img {
+  margin-top: 28rpx;
+  width: 72%;
+  height: 130rpx;
+}
+
+.cover-illus {
+  width: 100%;
+  height: 52vh;
+  margin-top: 12rpx;
+}
+
+.cover-en {
+  margin-top: 4rpx;
+  font-size: 40rpx;
+  color: #a58ce0;
+  font-family: "Snell Roundhand", "Segoe Script", "Brush Script MT", "Comic Sans MS", cursive;
+  letter-spacing: 2rpx;
+}
+
+.cover-hint {
+  position: absolute;
+  bottom: 56rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  color: #c8b89a;
+}
+
+/* ========== ② 邀请函 ========== */
+.invite-card {
+  background: #fffdf8;
+  border: 1rpx solid #f3e6d0;
+  border-radius: 20rpx;
+  padding: 52rpx 44rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 30rpx rgba(226, 64, 44, 0.06);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.invite-line {
+  font-size: 28rpx;
+  line-height: 2.2;
+  letter-spacing: 2rpx;
+  color: #5a4638;
+}
+
+.invite-orn {
+  margin-top: 30rpx;
+  color: #e2402c;
+  font-size: 30rpx;
+}
+
+.invite-sign {
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: #e2402c;
+  letter-spacing: 3rpx;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+/* ========== ③ 婚礼信息 ========== */
+.info-date {
+  font-size: 52rpx;
+  letter-spacing: 4rpx;
+  color: #4a3a32;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+  font-weight: bold;
+}
+
+.info-lunar {
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  letter-spacing: 4rpx;
+  color: #b08a6a;
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  margin-top: 34rpx;
+}
+
+.cd-box {
+  width: 108rpx;
+  height: 108rpx;
+  background: #fffdf8;
+  border: 1rpx solid #f3d9c4;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cd-num {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #e2402c;
+  line-height: 1.1;
+}
+
+.cd-label {
+  font-size: 20rpx;
+  color: #b08a6a;
+  margin-top: 4rpx;
+}
+
+.cd-sep {
+  font-size: 34rpx;
+  color: #dba385;
+  margin: 0 10rpx;
+  font-weight: bold;
+}
+
+.married-text {
+  margin-top: 34rpx;
+  font-size: 28rpx;
+  color: #e2402c;
+}
+
+.venue-card {
+  margin-top: 36rpx;
+  background: #fffdf8;
+  border: 1rpx solid #f3e6d0;
+  border-radius: 20rpx;
+  padding: 34rpx 36rpx;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.venue-name {
+  font-size: 32rpx;
+  color: #4a3a32;
+  font-weight: bold;
+  letter-spacing: 2rpx;
+}
+
+.venue-addr {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #a08b74;
+}
+
+.btn-row {
+  display: flex;
+  margin-top: 30rpx;
+}
+
+/* ========== ④ 我们的故事 ========== */
+.story-no {
+  font-size: 20rpx;
+  letter-spacing: 6rpx;
+  color: #dba385;
+  font-family: "Georgia", serif;
+  margin-bottom: 12rpx;
+}
+
+.story {
+  position: relative;
+  width: 100%;
+  height: 56vh;
+}
+
+.story-img-main {
+  position: absolute;
+  left: 0;
+  top: 6%;
+  width: 62%;
+  height: 76%;
+  border-radius: 12rpx;
+  border: 10rpx solid #ffffff;
+  box-shadow: 0 10rpx 34rpx rgba(90, 60, 40, 0.18);
+  transform: rotate(-3deg);
+}
+
+.story-img-sub {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 52%;
+  height: 52%;
+  border-radius: 12rpx;
+  border: 10rpx solid #ffffff;
+  box-shadow: 0 10rpx 34rpx rgba(90, 60, 40, 0.18);
+  transform: rotate(4deg);
+}
+
+.story-reverse .story-img-main {
+  left: auto;
+  right: 0;
+  transform: rotate(3deg);
+}
+
+.story-reverse .story-img-sub {
+  right: auto;
+  left: 0;
+  transform: rotate(-4deg);
+}
+
+.story-quote {
+  margin-top: 34rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quote-mark {
+  font-size: 56rpx;
+  color: #f0b7a4;
+  line-height: 1;
+  font-family: "Georgia", serif;
+}
+
+.quote-text {
+  margin-top: 8rpx;
+  font-size: 30rpx;
+  letter-spacing: 4rpx;
+  color: #8a5a4a;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.quote-line {
+  margin-top: 22rpx;
+  width: 120rpx;
+  height: 2rpx;
+  background: #eec9b8;
+}
+
+/* ========== ⑤ 幸福瞬间 ========== */
+.gallery-scroll {
+  width: 100%;
+  height: 68vh;
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.gallery-item {
+  width: calc((100% - 36rpx) / 4);
+  height: 160rpx;
+  border-radius: 10rpx;
+  overflow: hidden;
+}
+
+.gallery-hover {
+  opacity: 0.8;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-tip {
+  margin-top: 20rpx;
+  font-size: 22rpx;
+  color: #c8b89a;
+  letter-spacing: 2rpx;
+}
+
+/* ========== ⑥ 亲友祝福 ========== */
+.danmaku-box {
+  width: 100%;
+  height: 240rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.danmaku-lane {
+  width: 100%;
+  height: 60rpx;
+  margin: 8rpx 0;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.dm-item {
+  display: inline-block;
+  margin-right: 44rpx;
+  padding: 8rpx 24rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  animation: dm-scroll linear infinite;
+}
+
+.lane-0 .dm-item {
+  background: #fdeceb;
+  color: #b05a4a;
+  animation-duration: 26s;
+}
+
+.lane-1 .dm-item {
+  background: #fdf1dd;
+  color: #a5752f;
+  animation-duration: 32s;
+  animation-delay: -10s;
+}
+
+.lane-2 .dm-item {
+  background: #f3ecfa;
+  color: #8a63b8;
+  animation-duration: 29s;
+  animation-delay: -20s;
+}
+
+@keyframes dm-scroll {
+  from { transform: translateX(100vw); }
+  to   { transform: translateX(-120%); }
+}
+
+.bless-meta {
+  margin-top: 26rpx;
+  font-size: 24rpx;
+  color: #a08b74;
+}
+
+.visit-meta {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #c0ab90;
+}
+
+.bless-num {
+  color: #e2402c;
+  font-weight: bold;
+  font-size: 28rpx;
+}
+
+.bless-btn {
+  margin-top: 30rpx;
+  width: 70%;
+}
+
+/* ========== ⑦ 婚礼日程 + 到场回执 ========== */
+.timeline {
+  width: 82%;
+  margin-bottom: 30rpx;
+}
+
+.tl-item {
+  display: flex;
+  align-items: flex-start;
+}
+
+.tl-time {
+  width: 130rpx;
+  font-size: 30rpx;
+  color: #e2402c;
+  font-weight: bold;
+  letter-spacing: 2rpx;
+  line-height: 1;
+  margin-top: 2rpx;
+}
+
+.tl-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #e2402c;
+  flex-shrink: 0;
+}
+
+.tl-line {
+  width: 2rpx;
+  height: 52rpx;
+  background: #f0cdb4;
+  margin-left: 7rpx;
+}
+
+.tl-label {
+  margin-left: 26rpx;
+  font-size: 30rpx;
+  color: #5a4638;
+  letter-spacing: 3rpx;
+  margin-top: -4rpx;
+}
+
+.rsvp-card {
+  width: 100%;
+  background: #fffdf8;
+  border: 1rpx solid #f3e6d0;
+  border-radius: 20rpx;
+  padding: 34rpx 36rpx;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.rsvp-title {
+  font-size: 32rpx;
+  color: #e2402c;
+  letter-spacing: 6rpx;
+  font-weight: bold;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.rsvp-desc {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #a08b74;
+}
+
+.rsvp-opts {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 26rpx;
+}
+
+.rsvp-opt {
+  flex: 1;
+  border: 2rpx solid #eec9b8;
+  border-radius: 40rpx;
+  padding: 14rpx 0;
+  font-size: 28rpx;
+  color: #b08a6a;
+  background: #fffdf8;
+}
+
+.opt-on {
+  background: #e2402c;
+  border-color: #e2402c;
+  color: #fff8ef;
+  font-weight: bold;
+}
+
+.opt-off-on {
+  background: #a09484;
+  border-color: #a09484;
+  color: #fff8ef;
+  font-weight: bold;
+}
+
+.rsvp-guests {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 26rpx;
+  background: #faf3e6;
+  border-radius: 16rpx;
+  padding: 16rpx 24rpx;
+}
+
+.rg-label {
+  font-size: 26rpx;
+  color: #8a6a55;
+}
+
+.rg-ctrl {
+  display: flex;
+  align-items: center;
+}
+
+.rg-btn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 2rpx solid #eec9b8;
+  color: #e2402c;
+  font-size: 34rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffdf8;
+}
+
+.rg-num {
+  width: 90rpx;
+  text-align: center;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #e2402c;
+}
+
+.rsvp-name {
+  margin-top: 24rpx;
+  background: #faf3e6;
+  border-radius: 16rpx;
+  padding: 18rpx 26rpx;
+  font-size: 26rpx;
+  color: #5a4638;
+}
+
+.rsvp-btn {
+  margin-top: 26rpx;
+  width: 100%;
+}
+
+.rsvp-stats {
+  margin-top: 20rpx;
+  font-size: 22rpx;
+  color: #a08b74;
+}
+
+/* ========== ⑧ 尾页 ========== */
+.pane-ending {
+  background: #fdf6e9;
+}
+
+.ending-mono {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  border: 2rpx solid #e2402c;
+  box-shadow: inset 0 0 0 8rpx #fdf6e9, inset 0 0 0 9rpx #eec9b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+  color: #e2402c;
+  font-family: "Georgia", serif;
+  letter-spacing: 2rpx;
+  animation: heartbeat 1.6s ease infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  12%      { transform: scale(1.08); }
+  24%      { transform: scale(1); }
+}
+
+.ending-names {
+  margin-top: 40rpx;
+  font-size: 56rpx;
+  letter-spacing: 10rpx;
+  color: #4a3a32;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+  font-weight: bold;
+}
+
+.ending-eyebrow {
+  margin-top: 20rpx;
+  font-size: 20rpx;
+  letter-spacing: 8rpx;
+  color: #dba385;
+  font-family: "Georgia", serif;
+}
+
+.ending-text {
+  margin-top: 30rpx;
+  font-size: 30rpx;
+  letter-spacing: 6rpx;
+  color: #8a5a4a;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.ending-date {
+  margin-top: 22rpx;
+  font-size: 24rpx;
+  color: #b08a6a;
+  letter-spacing: 2rpx;
+}
+
+/* 尾页分享按钮：白底红线描边胶囊 */
+.share-btn {
+  margin-top: 44rpx;
+  padding: 0 56rpx;
+  line-height: 2.6;
+  font-size: 26rpx;
+  letter-spacing: 3rpx;
+  color: #e2402c;
+  background: #fffdf8;
+  border: 1rpx solid #eec9b8;
+  border-radius: 44rpx;
+  box-sizing: border-box;
+}
+
+.share-btn::after {
+  border: none;
+}
+
+/* ========== 祝福弹窗 ========== */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(60, 40, 30, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 78%;
+  background: #fffdf8;
+  border-radius: 24rpx;
+  padding: 44rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 34rpx;
+  color: #e2402c;
+  letter-spacing: 8rpx;
+  font-weight: bold;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.modal-input {
+  margin-top: 32rpx;
+  background: #faf3e6;
+  border-radius: 14rpx;
+  padding: 18rpx 24rpx;
+  font-size: 27rpx;
+  color: #5a4638;
+}
+
+.modal-textarea {
+  margin-top: 20rpx;
+  background: #faf3e6;
+  border-radius: 14rpx;
+  padding: 20rpx 24rpx;
+  font-size: 27rpx;
+  color: #5a4638;
+  width: 100%;
+  height: 160rpx;
+  box-sizing: border-box;
+}
+
+.modal-btns {
+  display: flex;
+  margin-top: 32rpx;
+}
