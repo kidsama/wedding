@@ -1,4 +1,4 @@
-const { API_BASE, WEDDING, ASSET_BASE, ASSETS } = require('../../utils/config');
+const { API_BASE, WEDDING, ASSET_BASE, ASSETS, INVITATIONS } = require('../../utils/config');
 const music = require('../../utils/music');
 const { parseWeddingDate, pad, getVisitorKey } = require('../../utils/common');
 
@@ -41,6 +41,10 @@ Page({
     wedding: WEDDING,
     monogram: MONOGRAM,
     icons: ICONS,
+    // 列表 / 详情 两模式（像相册页：先选邀请函，点开看具体请柬）
+    mode: 'list',
+    invitations: INVITATIONS,
+    currentInvite: null,
     current: 0,
     photos: [],
     heroUrl: '',
@@ -67,6 +71,11 @@ Page({
     this._shareEntry = !!(options && options.entry === 'share');
     this._tabBarPending = this._shareEntry;
     if (this._shareEntry) this.hideTabBarForShare();
+    // 分享链接可带邀请函 id（entry=share&id=xxx），直达对应邀请函详情
+    const invId = options && options.id;
+    if (invId || this._shareEntry) {
+      this.openInviteById(invId);
+    }
     this._vk = getVisitorKey();
     this.setData({ musicPlaying: music.isPlaying() });
     this._unsubMusic = music.subscribe((p) => this.setData({ musicPlaying: p }));
@@ -93,6 +102,24 @@ Page({
   onUnload() {
     if (this._timer) clearInterval(this._timer);
     if (this._unsubMusic) this._unsubMusic();
+  },
+
+  // ========== 邀请函列表 / 详情切换 ==========
+  openInvite(e) {
+    this.openInviteById(e.currentTarget.dataset.id);
+  },
+
+  openInviteById(id) {
+    const list = this.data.invitations || [];
+    const inv = list.find((i) => i.id === id) || list[0];
+    if (!inv) return;
+    this.setData({ mode: 'detail', currentInvite: inv, current: 0 });
+    wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: `邀请函 · ${inv.name}` });
+  },
+
+  backToInvList() {
+    this.setData({ mode: 'list', currentInvite: null, current: 0 });
+    wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: '婚礼邀请函' });
   },
 
   // 翻页追踪：驱动各屏入场渐显动画
@@ -367,20 +394,22 @@ Page({
     music.toggle();
   },
 
-  // ========== 分享卡片 ==========
+  // ========== 分享卡片（带当前邀请函 id，直达对应请柬） ==========
   onShareAppMessage() {
+    const inv = this.data.currentInvite || (this.data.invitations && this.data.invitations[0]) || {};
     return {
       title: `诚挚邀请您参加 ${WEDDING.groom} ❤ ${WEDDING.bride} 的婚礼`,
-      path: '/pages/invite/invite?entry=share',
-      imageUrl: this.data.heroUrl
+      path: `/pages/invite/invite?entry=share&id=${inv.id || ''}`,
+      imageUrl: this.data.heroUrl || inv.cover
     };
   },
 
   onShareTimeline() {
+    const inv = this.data.currentInvite || (this.data.invitations && this.data.invitations[0]) || {};
     return {
       title: `诚挚邀请您参加 ${WEDDING.groom} ❤ ${WEDDING.bride} 的婚礼`,
-      query: 'entry=share',
-      imageUrl: this.data.heroUrl
+      query: `entry=share&id=${inv.id || ''}`,
+      imageUrl: this.data.heroUrl || inv.cover
     };
   }
 });

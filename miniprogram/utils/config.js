@@ -1,12 +1,16 @@
 // ========== 全局配置：改这里就能定制你的电子请柬 ==========
 
+// 云存储素材域名常量（module.exports 内部引用用，ASSET_BASE 同值）
+const ASSET_HOST = 'https://7072-prod-d1gxeb1e1cb3d88a0-1372364674.tcb.qcloud.la';
+
 module.exports = {
   // 云托管服务域名（https 开头，结尾不带斜杠）
   // 上线前需在小程序后台「开发设置 - 服务器域名 - request 合法域名」中填写同一域名
-  API_BASE: 'https://wedding.liushaowei.top.tcbaccess.tencentcloudbase.com',
+  // 注意：必须与云托管控制台绑定的自定义域名一致（曾误拼 .tcbaccess.tencentcloudbase.com 后缀导致全部请求 404/证书不匹配）
+  API_BASE: 'https://wedding.liushaowei.top',
 
   // 云存储素材域名（所有图片素材统一放云存储，本地包不放图片）
-  ASSET_BASE: 'https://7072-prod-d1gxeb1e1cb3d88a0-1372364674.tcb.qcloud.la',
+  ASSET_BASE: ASSET_HOST,
 
   // 页面素材（对象路径，不用带签名，存储权限需为「所有用户可读」）
   ASSETS: {
@@ -48,5 +52,28 @@ module.exports = {
 
     // 首页下滑区「邀请信」段落（与上面邀请函页的 invitation 分开，互不影响）
     letter: '一起走过四季、晚风和人间琐碎，想到余生都有你，就对未来充满期待。从一时心动，到日久生定，我们决定并肩走剩下的路，从恋爱体验，正式升级为终身合伙人。请你来坐坐，见证我们最笨拙也最笃定的一刻。'
-  }
+  },
+
+  // ========== 邀请函列表（邀请函 Tab 先展示卡片列表，点开查看具体请柬） ==========
+  // 新增邀请函往数组里加一项即可；cover 为云存储直链（中文已 URL 编码）
+  INVITATIONS: [
+    {
+      id: 'classic',
+      name: '经典版',
+      desc: '奶油底 · 简约经典请柬',
+      cover: ASSET_HOST + '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/DSC09129.jpg'
+    },
+    {
+      id: 'zhiy',
+      name: '致爱版',
+      desc: '致爱系列 · 温柔仪式感',
+      cover: ASSET_HOST + '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/DSC09316-%E8%87%B4%E7%88%B1%E6%91%86%E5%8F%B012%E5%AF%B8A.jpg'
+    },
+    {
+      id: 'moments',
+      name: '浪漫瞬间',
+      desc: '婚纱照精选 · 定格美好',
+      cover: ASSET_HOST + '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/DSC09320.jpg'
+    }
+  ]
 };

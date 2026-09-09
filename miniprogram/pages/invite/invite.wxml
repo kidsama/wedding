@@ -11,10 +11,41 @@
     <view class="petal p7"></view>
   </view>
 
+  <!-- ========== 列表模式：选择一封邀请函 ========== -->
+  <block wx:if="{{mode === 'list'}}">
+    <view class="ivl">
+      <view class="ivl-head">
+        <view class="ivl-line"></view>
+        <view class="ivl-title">邀 请 函</view>
+        <view class="ivl-line"></view>
+      </view>
+      <view class="ivl-sub">INVITATIONS · 共 {{invitations.length}} 封</view>
+
+      <view class="ivl-card" wx:for="{{invitations}}" wx:key="id" hover-class="ivl-card-hover" bindtap="openInvite" data-id="{{item.id}}">
+        <view class="ivl-cover-wrap">
+          <image class="ivl-cover" src="{{item.cover}}" mode="aspectFill" />
+        </view>
+        <view class="ivl-info">
+          <view class="ivl-name">{{item.name}}</view>
+          <view class="ivl-desc">{{item.desc}}</view>
+          <view class="ivl-open">打 开 <text class="ivl-arrow">›</text></view>
+        </view>
+      </view>
+
+      <view class="ivl-foot">— 选择一封邀请函打开 —</view>
+    </view>
+  </block>
+
+  <!-- ========== 详情模式：具体请柬（原八屏翻页） ========== -->
+  <block wx:else>
+
   <!-- 背景音乐按钮 -->
   <view class="music {{musicPlaying ? 'music-playing' : ''}}" wx:if="{{wedding.musicUrl}}" catchtap="toggleMusic">
     <image class="music-icon" src="{{icons.musicOn}}" mode="aspectFit" />
   </view>
+
+  <!-- 返回邀请函列表 -->
+  <view class="back-btn" bindtap="backToInvList">‹ 邀请函列表</view>
 
   <!-- 整屏竖向翻页（手动滑动） -->
   <swiper class="full-swiper" vertical circular="{{false}}" autoplay="{{false}}" duration="500" bindchange="onSwiperChange">
@@ -32,6 +63,7 @@
           <text class="arc-l" style="transform: translateY(18rpx) rotate(30deg);">E</text>
         </view>
         <view class="cover-tag">【婚礼邀请函】</view>
+        <view class="cover-inv-name" wx:if="{{currentInvite && currentInvite.name}}">{{currentInvite.name}}</view>
         <image class="cover-title-img" src="/images/page-1-title-1.png" mode="aspectFit" />
         <image class="cover-illus" src="/images/cover-illus.gif" mode="aspectFit" />
         <view class="cover-en">We are getting married!</view>
@@ -191,6 +223,8 @@
       </view>
     </swiper-item>
   </swiper>
+
+  </block>
 </view>
 
 <!-- 祝福弹窗 -->
