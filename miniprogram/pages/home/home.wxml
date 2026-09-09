@@ -15,7 +15,7 @@
   <view class="poster-content">
     <view class="p-names">{{wedding.bride}} <text class="p-amp">&</text> {{wedding.groom}}</view>
     <view class="p-en">We're getting married</view>
-    <view class="p-date-pill">{{dateText}} · {{timeText}} · {{wedding.venueTag}}</view>
+    <view class="p-date-pill">{{dateText}} · {{timeText}} · {{wedding.lunar}}</view>
 
     <!-- 大号倒计时 -->
     <view class="p-count" wx:if="{{!married}}">
@@ -65,22 +65,11 @@
       </view>
       <view class="st-card" bindtap="goAlbum" hover-class="st-card-hover">
         <view class="st-icon">📷</view>
-        <view class="st-label">婚纱相册</view>
-        <view class="st-en">ALBUM</view>
+        <view class="st-label">我们的相册</view>
+        <view class="st-en">GALLERY</view>
         <view class="st-arrow">›</view>
       </view>
     </view>
-  </view>
-
-  <!-- 婚礼相册（预览条） -->
-  <view class="albums">
-    <view class="al-head">
-      <view class="al-title">婚礼相册</view>
-      <view class="al-more" bindtap="goAlbum" hover-class="al-more-hover">查看全部 <text class="al-more-arrow">›</text></view>
-    </view>
-    <scroll-view class="al-strip" scroll-x enhanced show-scrollbar="{{false}}">
-      <image class="al-thumb" wx:for="{{albumPhotos}}" wx:key="*this" src="{{item}}" mode="aspectFill" bindtap="goAlbum" />
-    </scroll-view>
   </view>
 
   <!-- 页脚祝福 -->

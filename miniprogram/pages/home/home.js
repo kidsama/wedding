@@ -5,16 +5,12 @@ const { parseWeddingDate, pad } = require('../../utils/common');
 // 兜底海报（云托管 /api/photos 请求失败时使用）
 const FALLBACK_HERO = 'https://picsum.photos/seed/wedding/750/1400';
 
-// 相册预览条兜底图
-const FALLBACK_STRIP = [1, 2, 3, 4, 5, 6].map((i) => `https://picsum.photos/seed/wedding${i}/400/400`);
-
 Page({
   data: {
     wedding: WEDDING,
     icons: { musicOn: ASSET_BASE + ASSETS.musicOn },
     hero: '',
     letterText: '',
-    albumPhotos: FALLBACK_STRIP,
     dateText: '',
     timeText: '',
     countdown: { d: '0', h: '00', m: '00', s: '00' },
@@ -38,7 +34,6 @@ Page({
     this.setData({ musicPlaying: music.isPlaying() });
     this._unsubMusic = music.subscribe((p) => this.setData({ musicPlaying: p }));
     this.fetchHero();
-    this.fetchAlbumPreview();
     this.initCountdown();
   },
 
@@ -88,21 +83,6 @@ Page({
 
   // ========== 相册预览条 ==========
   // 取前 6 张照片做横向预览（失败时静默用兜底图）
-  fetchAlbumPreview() {
-    wx.request({
-      url: `${API_BASE}/api/photos`,
-      method: 'GET',
-      timeout: 8000,
-      success: (res) => {
-        const d = res.data && res.data.data;
-        if (res.data && res.data.code === 0 && Array.isArray(d) && d.length > 0) {
-          this.setData({ albumPhotos: d.slice(0, 6).map((p) => p.url) });
-        }
-      },
-      fail: () => {}
-    });
-  },
-
   // ========== 倒计时 ==========
   initCountdown() {
     const target = parseWeddingDate(WEDDING.date);

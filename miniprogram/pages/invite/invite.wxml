@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page {{layout === 'long' ? 'page-long' : ''}}">
 
   <!-- 飘落花瓣（全局装饰） -->
   <view class="petals">
@@ -40,15 +40,278 @@
   <block wx:else>
 
   <!-- 背景音乐按钮 -->
-  <view class="music {{musicPlaying ? 'music-playing' : ''}}" wx:if="{{wedding.musicUrl}}" catchtap="toggleMusic">
+  <view class="music {{musicPlaying ? 'music-playing' : ''}}" style="{{musicTop ? 'top:' + musicTop : ''}}" wx:if="{{wedding.musicUrl}}" catchtap="toggleMusic">
     <image class="music-icon" src="{{icons.musicOn}}" mode="aspectFit" />
   </view>
 
   <!-- 返回邀请函列表 -->
   <view class="back-btn" bindtap="backToInvList">‹ 邀请函列表</view>
 
-  <!-- 整屏竖向翻页（手动滑动） -->
-  <swiper class="full-swiper" vertical circular="{{false}}" autoplay="{{false}}" duration="500" bindchange="onSwiperChange">
+  <!-- ========== 经典版：整页长图请柬（缓慢自动上滚） ========== -->
+  <block wx:if="{{layout === 'long'}}">
+    <view class="long-body" bindtouchstart="onLongTouchStart" bindtouchend="onLongTouchEnd" bindtouchcancel="onLongTouchEnd">
+
+      <!-- ⓪ 封面区：原第一页的弧形 WELCOME + 标题图 + 动画插画 -->
+      <view class="lg-cover reveal {{revealed.h0 ? 'on' : ''}}" data-sec="h0">
+        <view class="cover-arc">
+          <text class="arc-l" style="transform: translateY(18rpx) rotate(-30deg);">W</text>
+          <text class="arc-l" style="transform: translateY(5rpx) rotate(-20deg);">E</text>
+          <text class="arc-l" style="transform: translateY(-4rpx) rotate(-10deg);">L</text>
+          <text class="arc-l" style="transform: translateY(-8rpx) rotate(0deg);">C</text>
+          <text class="arc-l" style="transform: translateY(-4rpx) rotate(10deg);">O</text>
+          <text class="arc-l" style="transform: translateY(5rpx) rotate(20deg);">M</text>
+          <text class="arc-l" style="transform: translateY(18rpx) rotate(30deg);">E</text>
+        </view>
+        <view class="cover-tag">【婚礼邀请函】</view>
+        <image class="cover-title-img" src="{{coverTitle}}" mode="aspectFit" />
+        <image class="cover-illus" src="{{coverIllus}}" mode="aspectFit" />
+        <view class="cover-en">We are getting married!</view>
+      </view>
+
+      <!-- ① 头部：新人头像 + 囍 + 姓名 -->
+      <view class="lg-head reveal {{revealed.h1 ? 'on' : ''}}" data-sec="h1">
+        <view class="lg-avatars">
+          <image class="lg-avatar lg-avatar-groom" src="{{headGroom}}" mode="aspectFill" />
+          <image class="lg-xi" src="{{xiImg}}" mode="aspectFit" />
+          <image class="lg-avatar" src="{{headBride}}" mode="aspectFill" />
+        </view>
+        <view class="lg-names">
+          <text class="lg-name">{{wedding.groom}}</text>
+          <text class="lg-amp">&</text>
+          <text class="lg-name">{{wedding.bride}}</text>
+        </view>
+        <view class="lg-scripts">
+          <text class="lg-script">{{wedding.groomEn}}</text>
+          <view class="lg-script-gap"></view>
+          <text class="lg-script">{{wedding.brideEn}}</text>
+        </view>
+      </view>
+
+      <!-- ② 主图（hero 未配置时显示占位待补） -->
+      <view class="lg-hero reveal {{revealed.h2 ? 'on' : ''}}" data-sec="h2">
+        <block wx:if="{{heroLong}}">
+          <image class="lg-hero-img" src="{{heroLong}}" mode="widthFix" bindtap="onPhotoTap" data-index="0" />
+          <view class="lg-hero-fade"></view>
+        </block>
+        <view wx:else class="lg-hero-empty">
+          <view class="lg-hero-plus">＋</view>
+          <view class="lg-hero-tip">主图待补 · 求婚 / 婚纱照均可</view>
+        </view>
+      </view>
+
+      <!-- ③ 故事标题 -->
+      <view class="lg-storytitle reveal {{revealed.h3 ? 'on' : ''}}" data-sec="h3">
+        <view class="lg-st-main">分享一下我们の故事</view>
+        <view class="lg-st-script">Our wedding</view>
+      </view>
+
+      <!-- S1 门当户对 -->
+      <view class="sec s1 reveal {{revealed.s1 ? 'on' : ''}}" data-sec="s1">
+        <view class="s1-row">
+          <view class="s1-photo">
+            <image wx:if="{{classic.story1}}" class="s1-img" src="{{classic.story1}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.story1}}" />
+            <view wx:else class="ph-box ph-fill">照片待补</view>
+          </view>
+          <view class="s1-text">
+            <view class="s1-line">最好的爱情</view>
+            <view class="s1-line">是精神上的门当户对</view>
+            <view class="s1-line">从做朋友到恋爱到结婚</view>
+            <view class="s1-line">慢慢地自然地发展</view>
+            <view class="s1-line">不是像大风大浪冲击式的爱</view>
+            <view class="s1-line">而是细水长流式的爱</view>
+            <view class="s1-line">我不能现在回答为什么是你</view>
+            <view class="s1-line">因为你得准备好一生来倾听</view>
+          </view>
+        </view>
+        <view class="s1-slogan">"让爱，自定义"</view>
+        <view class="s1-pair">
+          <image wx:if="{{classic.story1a}}" class="s1-pa" src="{{classic.story1a}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.story1a}}" />
+          <view wx:else class="ph-box s1-pa">照片待补</view>
+          <image wx:if="{{classic.story1b}}" class="s1-pb" src="{{classic.story1b}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.story1b}}" />
+          <view wx:else class="ph-box s1-pb">照片待补</view>
+        </view>
+      </view>
+
+      <!-- S2 结婚啦 · 日历卡 -->
+      <view class="sec s2 reveal {{revealed.s2 ? 'on' : ''}}" data-sec="s2">
+        <view class="s2-quote">If I could rearrange the alphabet,</view>
+        <view class="s2-quote s2-quote2">I'd put U and I together.</view>
+        <view class="s2-wrap">
+          <image wx:if="{{classic.calendar}}" class="s2-img" src="{{classic.calendar}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.calendar}}" />
+          <view wx:else class="ph-box s2-ph">照片待补</view>
+          <view class="cal-card">
+            <image class="cal-xi" src="{{xiImg}}" mode="aspectFit" />
+            <view class="cal-top">
+              <text class="cal-date">{{cal.label}}</text>
+              <text class="cal-year">- {{cal.year}} -</text>
+            </view>
+            <view class="cal-week">
+              <text class="cal-wc" wx:for="{{['一','二','三','四','五','六','日']}}" wx:key="*this">{{item}}</text>
+            </view>
+            <view class="cal-grid">
+              <view class="cal-day" wx:for="{{cal.cells}}" wx:for-item="cell" wx:key="k">
+                <view wx:if="{{cell.d}}" class="cal-num {{cell.on ? 'on' : ''}}">{{cell.d}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- S3 慢慢亦漫漫 -->
+      <view class="sec s3 reveal {{revealed.s3 ? 'on' : ''}}" data-sec="s3">
+        <view class="s3-poem">
+          <view class="s3-line">愿我们能享受炙热的新鲜感</view>
+          <view class="s3-line">也能经受得住时光的打磨</view>
+          <view class="s3-line">对于我而言，你永远是星辰大海无可替代</view>
+          <view class="s3-line">你不需要有多完美，你只需要做你自己就好</view>
+          <view class="s3-line">我会慢慢又长长的爱你</view>
+          <view class="s3-line">周而复始，因为 慢慢亦漫漫</view>
+        </view>
+        <view class="s3-full">
+          <image wx:if="{{classic.xiuhe}}" class="s3-img" src="{{classic.xiuhe}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.xiuhe}}" />
+          <view wx:else class="ph-box s3-ph">秀禾大图待补</view>
+          <view class="s3-fade s3-fade-top"></view>
+          <view class="s3-fade s3-fade-btm"></view>
+          <view class="s3-words">
+            <view class="s3-word" wx:for="{{loveWords}}" wx:for-item="w" wx:key="k">
+              <text class="s3-ch" wx:for="{{w.letters}}" wx:for-item="c" wx:key="t">{{c.t}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="s3-pair">
+          <image wx:if="{{classic.fallA}}" class="s3-pi" src="{{classic.fallA}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.fallA}}" />
+          <view wx:else class="ph-box s3-pi">照片待补</view>
+          <image wx:if="{{classic.fallB}}" class="s3-pi" src="{{classic.fallB}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.fallB}}" />
+          <view wx:else class="ph-box s3-pi">照片待补</view>
+        </view>
+      </view>
+
+      <!-- S4 关键词 -->
+      <view class="sec s4 reveal {{revealed.s4 ? 'on' : ''}}" data-sec="s4">
+        <view class="s4-title">关 键 词</view>
+        <view class="s4-quote">有些词，一出现就会想起你</view>
+        <view class="s4-photo">
+          <image wx:if="{{classic.keyword}}" class="s4-img" src="{{classic.keyword}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.keyword}}" />
+          <view wx:else class="ph-box s4-ph">照片待补</view>
+          <view class="s4-fade"></view>
+          <view class="s4-cap">浪漫 · 旅行 · 三餐 · 四季 · 白首</view>
+        </view>
+      </view>
+
+      <!-- S5 WELCOME TO OUR WEDDING -->
+      <view class="sec s5 reveal {{revealed.s5 ? 'on' : ''}}" data-sec="s5">
+        <view class="s5-row">
+          <image wx:if="{{classic.welcomeA}}" class="s5-high" src="{{classic.welcomeA}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.welcomeA}}" />
+          <view wx:else class="ph-box s5-high">照片待补</view>
+          <image wx:if="{{classic.welcomeB}}" class="s5-low" src="{{classic.welcomeB}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.welcomeB}}" />
+          <view wx:else class="ph-box s5-low">照片待补</view>
+        </view>
+        <view class="s5-inv">Invitation</view>
+        <view class="s5-names">{{wedding.groom}} & {{wedding.bride}}</view>
+        <view class="s5-sub">TO OUR WEDDING</view>
+      </view>
+
+      <!-- S6 单图 + 诗 -->
+      <view class="sec s6 reveal {{revealed.s6 ? 'on' : ''}}" data-sec="s6">
+        <image wx:if="{{classic.dateA}}" class="s6-img" src="{{classic.dateA}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.dateA}}" />
+        <view wx:else class="ph-box s6-img">照片待补</view>
+        <view class="s6-poem">
+          <view class="s6-line">幸得相恋，风不燥，月亮也正圆，</view>
+          <view class="s6-line">爱意要说万万遍，</view>
+          <view class="s6-line">你的言语最是浪漫，碎碎又念念，</view>
+          <view class="s6-line">把故事往最长久的岁月赶。</view>
+          <view class="s6-line">有人要你前路变平凡，</view>
+          <view class="s6-line">有人要你灿灿，</view>
+          <view class="s6-line">那我要你：</view>
+          <view class="s6-line">“晨昏相伴，岁岁年年”</view>
+          <view class="s6-line">“相看两不厌，再一起走向未来的圆满”</view>
+        </view>
+      </view>
+
+      <!-- S7 倒计时 · 敬备喜酌 -->
+      <view class="sec s7 reveal {{revealed.s7 ? 'on' : ''}}" data-sec="s7">
+        <view class="s7-photo">
+          <image wx:if="{{classic.countdown}}" class="s7-img" src="{{classic.countdown}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.countdown}}" />
+          <view wx:else class="ph-box s7-ph">照片待补</view>
+        </view>
+        <view class="s7-bless">
+          <text class="s7-bless-t">敬备喜酌</text>
+          <text class="s7-xi">囍</text>
+          <text class="s7-bless-t">恭候光临</text>
+        </view>
+        <view class="s7-poem">
+          <view class="s6-line">十月的风穿过山岗</view>
+          <view class="s6-line">吹来满城的桂花香</view>
+          <view class="s6-line">我们把日子熬成糖</view>
+          <view class="s6-line">把喜欢写成请柬</view>
+          <view class="s6-line">恭请您拨冗莅临</view>
+          <view class="s6-line">见证我们的幸福时刻</view>
+          <view class="s6-line">席间薄酒一杯</view>
+          <view class="s6-line">敬岁月 敬相遇</view>
+          <view class="s6-line">也敬远道而来的您</view>
+        </view>
+      </view>
+
+      <!-- S8 婚礼时间 -->
+      <view class="sec s8 reveal {{revealed.s8 ? 'on' : ''}}" data-sec="s8">
+        <view class="s8-head">
+          <view class="s8-t">婚 礼 时 间</view>
+          <view class="s8-en">TIME</view>
+        </view>
+        <view class="s8-date">{{dateLong}}</view>
+        <view class="s8-lunar">{{wedding.lunar}}</view>
+        <view class="s8-time">{{timeShort}}</view>
+      </view>
+
+      <!-- S9 婚礼地点 -->
+      <view class="sec s9 reveal {{revealed.s9 ? 'on' : ''}}" data-sec="s9">
+        <view class="s8-head">
+          <view class="s8-t">婚 礼 地 点</view>
+          <view class="s8-en">ADDRESS</view>
+        </view>
+        <view class="s9-mapwrap">
+          <map class="s9-map" latitude="{{wedding.latitude}}" longitude="{{wedding.longitude}}" markers="{{mapMarkers}}" scale="15" enable-zoom="{{false}}" enable-scroll="{{false}}"></map>
+          <view class="s9-nav" catchtap="openMap">导航到这里</view>
+        </view>
+        <view class="s9-addr">{{wedding.venue}}</view>
+        <view class="s9-sub">{{wedding.address}}</view>
+      </view>
+
+      <!-- S10 出席回执 + 尾页 -->
+      <view class="sec s10 reveal {{revealed.s10 ? 'on' : ''}}" data-sec="s10">
+        <view class="f10-card">
+          <view class="f10-title">出席回执 · RSVP</view>
+          <view class="f10-row">
+            <view class="f10-label"><text class="f10-req">*</text> 姓 名</view>
+            <input class="f10-input" placeholder="请输入您的姓名" placeholder-class="f10-ph" maxlength="20" value="{{rsvpName}}" bindinput="onRsvpName" bindfocus="onFormFocus" bindblur="onFormBlur" />
+          </view>
+          <view class="f10-row">
+            <view class="f10-label"><text class="f10-req">*</text> 出席人数</view>
+            <view class="f10-step">
+              <view class="f10-sbtn" bindtap="onGuestsSub">-</view>
+              <text class="f10-num">{{rsvpGuests}}</text>
+              <view class="f10-sbtn" bindtap="onGuestsAdd">+</view>
+            </view>
+          </view>
+          <block wx:if="{{!classicRsvpDone}}">
+            <view class="f10-submit" bindtap="submitClassicRsvp">确 认 出 席</view>
+            <view class="f10-no" bindtap="submitClassicNo">我无法到场</view>
+          </block>
+          <view wx:else class="f10-done">已提交，感谢您的回复 ❤</view>
+          <view class="f10-stats" wx:if="{{rsvpStats}}">
+            已有 <text class="f10-num-r">{{rsvpStats.attending}}</text> 位亲友确认出席 · 共 <text class="f10-num-r">{{rsvpStats.guests}}</text> 人
+          </view>
+        </view>
+        <view class="s10-xi">囍</view>
+        <image class="s10-close-img" src="{{closeImg}}" mode="aspectFit" />
+        <view class="s10-date">{{dateLong}} · {{wedding.venue}}</view>
+      </view>
+
+    </view>
+  </block>
+
+  <!-- ========== 其他邀请函：整屏竖向翻页（手动滑动） ========== -->
+  <swiper class="full-swiper" wx:else vertical circular="{{false}}" autoplay="{{false}}" duration="500" bindchange="onSwiperChange">
 
     <!-- ① 封面：奶油底 + 弧形 WELCOME + 新人插画 -->
     <swiper-item>
@@ -63,9 +326,8 @@
           <text class="arc-l" style="transform: translateY(18rpx) rotate(30deg);">E</text>
         </view>
         <view class="cover-tag">【婚礼邀请函】</view>
-        <view class="cover-inv-name" wx:if="{{currentInvite && currentInvite.name}}">{{currentInvite.name}}</view>
-        <image class="cover-title-img" src="/images/page-1-title-1.png" mode="aspectFit" />
-        <image class="cover-illus" src="/images/cover-illus.gif" mode="aspectFit" />
+        <image class="cover-title-img" src="{{coverTitle}}" mode="aspectFit" />
+        <image class="cover-illus" src="{{coverIllus}}" mode="aspectFit" />
         <view class="cover-en">We are getting married!</view>
         <view class="cover-hint">上滑开启请柬</view>
       </view>
@@ -113,26 +375,93 @@
       </view>
     </swiper-item>
 
-    <!-- ④ 我们的故事：每组照片独立一屏 -->
-    <swiper-item wx:for="{{stories}}" wx:key="index">
+    <!-- ④ 我们的故事：六屏杂志式章节（遇见/四季/旅途/日常/决定/邀请） -->
+    <swiper-item wx:for="{{chapters}}" wx:key="layout" wx:for-item="ch">
       <view class="pane {{current === 3 + index ? 'on' : ''}}">
-        <view class="story-no">CHAPTER {{index + 1}}</view>
-        <view class="section-title">我 们 的 故 事</view>
-        <view class="story {{item.reverse ? 'story-reverse' : ''}}">
-          <image class="story-img-main" src="{{item.a.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{index * 2}}" />
-          <image wx:if="{{item.b}}" class="story-img-sub" src="{{item.b.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{index * 2 + 1}}" />
-        </view>
-        <view class="story-quote">
-          <view class="quote-mark">"</view>
-          <view class="quote-text">{{item.quote}}</view>
-          <view class="quote-line"></view>
-        </view>
+
+        <!-- 遇见：单图大画 + 注脚 -->
+        <block wx:if="{{ch.layout === 'hero'}}">
+          <view class="ch-no">{{ch.no}} · {{ch.en}}</view>
+          <view class="section-title">{{ch.title}}</view>
+          <image wx:if="{{ch.photo}}" class="ch-hero-img" src="{{ch.photo.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{ch.photo.g}}" />
+          <view class="ch-lines">
+            <view class="ch-line" wx:for="{{ch.lines}}" wx:for-item="ln" wx:key="*this">{{ln}}</view>
+          </view>
+          <view class="ch-foot">{{ch.foot}}</view>
+        </block>
+
+        <!-- 四季：2×2 宫格 -->
+        <block wx:elif="{{ch.layout === 'grid4'}}">
+          <view class="ch-no">{{ch.no}} · {{ch.en}}</view>
+          <view class="section-title">{{ch.title}}</view>
+          <view class="ch-grid4">
+            <view class="ch-g4" wx:for="{{ch.photos}}" wx:for-item="ph" wx:for-index="pi" wx:key="g">
+              <image class="ch-g4-img" src="{{ph.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{ph.g}}" />
+              <view class="ch-g4-label" wx:if="{{ch.labels[pi]}}">{{ch.labels[pi]}}</view>
+            </view>
+          </view>
+        </block>
+
+        <!-- 旅途：三联错落 -->
+        <block wx:elif="{{ch.layout === 'strip'}}">
+          <view class="ch-no">{{ch.no}} · {{ch.en}}</view>
+          <view class="section-title">{{ch.title}}</view>
+          <view class="ch-strip">
+            <image class="ch-strip-img {{pi === 1 ? 'ch-strip-mid' : ''}}" wx:for="{{ch.photos}}" wx:for-item="ph" wx:for-index="pi" wx:key="g" src="{{ph.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{ph.g}}" />
+          </view>
+          <view class="ch-lines">
+            <view class="ch-line" wx:for="{{ch.lines}}" wx:for-item="ln" wx:key="*this">{{ln}}</view>
+          </view>
+        </block>
+
+        <!-- 日常：一大两小 + 数字亮点 -->
+        <block wx:elif="{{ch.layout === 'daily'}}">
+          <view class="ch-no">{{ch.no}} · {{ch.en}}</view>
+          <view class="section-title">{{ch.title}}</view>
+          <view class="ch-daily">
+            <image wx:if="{{ch.photos[0]}}" class="ch-daily-main" src="{{ch.photos[0].url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{ch.photos[0].g}}" />
+            <view class="ch-daily-col">
+              <image wx:if="{{ch.photos[1]}}" class="ch-daily-sm" src="{{ch.photos[1].url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{ch.photos[1].g}}" />
+              <image wx:if="{{ch.photos[2]}}" class="ch-daily-sm" src="{{ch.photos[2].url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{ch.photos[2].g}}" />
+            </view>
+          </view>
+          <view class="ch-accent">
+            <text class="ch-accent-num">{{ch.accentNum}}</text>
+            <text class="ch-accent-unit">{{ch.accentUnit}}</text>
+          </view>
+        </block>
+
+        <!-- 决定：全屏大图 + 白卡标签 -->
+        <block wx:elif="{{ch.layout === 'yes'}}">
+          <view class="ch-no">{{ch.no}} · {{ch.en}}</view>
+          <view class="section-title">{{ch.title}}</view>
+          <view class="ch-yes-wrap">
+            <image wx:if="{{ch.photo}}" class="ch-yes-img" src="{{ch.photo.url}}" mode="aspectFill" bindtap="onPhotoTap" data-index="{{ch.photo.g}}" />
+            <view class="ch-badge">
+              <view class="ch-badge-title">{{ch.badgeTitle}}</view>
+              <view class="ch-badge-sub">{{ch.badgeSub}}</view>
+            </view>
+          </view>
+        </block>
+
+        <!-- 邀请：纯文字信笺 -->
+        <block wx:else>
+          <view class="ch-no">{{ch.no}} · {{ch.en}}</view>
+          <view class="ch-quote-mark">“</view>
+          <view class="ch-quote">{{ch.quote}}</view>
+          <view class="ch-lines">
+            <view class="ch-line" wx:for="{{ch.lines}}" wx:for-item="ln" wx:key="*this">{{ln}}</view>
+          </view>
+          <view class="invite-orn">❦</view>
+          <view class="ch-sign">{{ch.sign}} 敬上</view>
+        </block>
+
       </view>
     </swiper-item>
 
     <!-- ⑤ 幸福瞬间（网格） -->
     <swiper-item wx:if="{{photos.length > 0}}">
-      <view class="pane {{current === 3 + stories.length ? 'on' : ''}}">
+      <view class="pane {{current === 3 + chapters.length ? 'on' : ''}}">
         <view class="section-title">幸 福 瞬 间</view>
         <scroll-view class="gallery-scroll" scroll-y>
           <view class="gallery">
@@ -148,7 +477,7 @@
 
     <!-- ⑥ 亲友祝福弹幕 -->
     <swiper-item>
-      <view class="pane {{current === 4 + stories.length ? 'on' : ''}}">
+      <view class="pane {{current === 4 + chapters.length ? 'on' : ''}}">
         <view class="pane-eyebrow">BEST WISHES</view>
         <view class="section-title">亲 友 祝 福</view>
         <view class="danmaku-box">
@@ -175,7 +504,7 @@
 
     <!-- ⑦ 婚礼日程 + 到场回执 -->
     <swiper-item>
-      <view class="pane {{current === 5 + stories.length ? 'on' : ''}}">
+      <view class="pane {{current === 5 + chapters.length ? 'on' : ''}}">
         <view class="pane-eyebrow">WEDDING DAY</view>
         <view class="section-title">婚 礼 日 程</view>
         <view class="timeline">
@@ -213,7 +542,7 @@
 
     <!-- ⑧ 尾页 -->
     <swiper-item>
-      <view class="pane pane-ending {{current === 6 + stories.length ? 'on' : ''}}">
+      <view class="pane pane-ending {{current === 6 + chapters.length ? 'on' : ''}}">
         <view class="ending-mono">{{monogram}}</view>
         <view class="ending-names">{{wedding.groom}} & {{wedding.bride}}</view>
         <view class="ending-eyebrow">OUR WEDDING DAY</view>

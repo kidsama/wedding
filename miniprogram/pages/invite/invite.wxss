@@ -73,14 +73,15 @@
 /* ========== 背景音乐按钮 ========== */
 .music {
   position: fixed;
-  top: 120rpx;
+  top: 12rpx;   /* 兜底位置：本页为系统导航栏，页面原点在导航栏底部；正常由 JS 换算成与首页同一屏幕高度 */
   right: 34rpx;
   z-index: 999;
   width: 84rpx;
   height: 84rpx;
   border-radius: 50%;
-  background: #e2402c;
-  box-shadow: 0 4rpx 16rpx rgba(226, 64, 44, 0.35);
+  background: rgba(36, 29, 24, 0.35);   /* 深棕半透明，与首页一致（原红色圆底废弃） */
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -336,8 +337,8 @@
   margin-top: 30rpx;
 }
 
-/* ========== ④ 我们的故事 ========== */
-.story-no {
+/* ========== ④ 我们的故事：六屏杂志式章节 ========== */
+.ch-no {
   font-size: 20rpx;
   letter-spacing: 6rpx;
   color: #dba385;
@@ -345,75 +346,218 @@
   margin-bottom: 12rpx;
 }
 
-.story {
-  position: relative;
-  width: 100%;
-  height: 56vh;
-}
-
-.story-img-main {
-  position: absolute;
-  left: 0;
-  top: 6%;
-  width: 62%;
-  height: 76%;
-  border-radius: 12rpx;
-  border: 10rpx solid #ffffff;
-  box-shadow: 0 10rpx 34rpx rgba(90, 60, 40, 0.18);
-  transform: rotate(-3deg);
-}
-
-.story-img-sub {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 52%;
-  height: 52%;
-  border-radius: 12rpx;
-  border: 10rpx solid #ffffff;
-  box-shadow: 0 10rpx 34rpx rgba(90, 60, 40, 0.18);
-  transform: rotate(4deg);
-}
-
-.story-reverse .story-img-main {
-  left: auto;
-  right: 0;
-  transform: rotate(3deg);
-}
-
-.story-reverse .story-img-sub {
-  right: auto;
-  left: 0;
-  transform: rotate(-4deg);
-}
-
-.story-quote {
-  margin-top: 34rpx;
+.ch-lines {
+  margin-top: 26rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.quote-mark {
-  font-size: 56rpx;
-  color: #f0b7a4;
-  line-height: 1;
-  font-family: "Georgia", serif;
-}
-
-.quote-text {
-  margin-top: 8rpx;
-  font-size: 30rpx;
-  letter-spacing: 4rpx;
+.ch-line {
+  font-size: 28rpx;
+  line-height: 2;
+  letter-spacing: 3rpx;
   color: #8a5a4a;
   font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
 }
 
-.quote-line {
-  margin-top: 22rpx;
-  width: 120rpx;
-  height: 2rpx;
-  background: #eec9b8;
+.ch-foot {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  color: #b08a6a;
+}
+
+/* 遇见：单图大画 */
+.ch-hero-img {
+  margin-top: 10rpx;
+  width: 84%;
+  height: 48vh;
+  border: 10rpx solid #ffffff;
+  border-radius: 10rpx;
+  box-shadow: 0 12rpx 36rpx rgba(90, 60, 40, 0.18);
+  transform: rotate(-1.5deg);
+}
+
+/* 四季：2×2 宫格 */
+.ch-grid4 {
+  margin-top: 6rpx;
+  width: 88%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.ch-g4 {
+  width: calc(50% - 7rpx);
+  margin-bottom: 18rpx;
+}
+
+.ch-g4-img {
+  width: 100%;
+  height: 260rpx;
+  border: 8rpx solid #ffffff;
+  border-radius: 10rpx;
+  box-shadow: 0 8rpx 24rpx rgba(90, 60, 40, 0.15);
+  box-sizing: border-box;
+}
+
+.ch-g4-label {
+  margin-top: 10rpx;
+  text-align: center;
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  color: #a08b74;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+/* 旅途：三联错落 */
+.ch-strip {
+  margin-top: 6rpx;
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ch-strip-img {
+  width: 31%;
+  height: 330rpx;
+  border: 8rpx solid #ffffff;
+  border-radius: 10rpx;
+  box-shadow: 0 8rpx 24rpx rgba(90, 60, 40, 0.15);
+  box-sizing: border-box;
+  transform: translateY(24rpx) rotate(-2deg);
+}
+
+.ch-strip-mid {
+  transform: translateY(-30rpx) rotate(2deg);
+}
+
+/* 日常：一大两小 + 数字亮点 */
+.ch-daily {
+  margin-top: 6rpx;
+  width: 88%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ch-daily-main {
+  width: 57%;
+  height: 400rpx;
+  border: 8rpx solid #ffffff;
+  border-radius: 10rpx;
+  box-shadow: 0 8rpx 24rpx rgba(90, 60, 40, 0.15);
+  box-sizing: border-box;
+}
+
+.ch-daily-col {
+  width: 39%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ch-daily-sm {
+  width: 100%;
+  height: 192rpx;
+  border: 8rpx solid #ffffff;
+  border-radius: 10rpx;
+  box-shadow: 0 8rpx 24rpx rgba(90, 60, 40, 0.15);
+  box-sizing: border-box;
+}
+
+.ch-accent {
+  margin-top: 44rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ch-accent-num {
+  font-size: 72rpx;
+  font-weight: bold;
+  color: #e2402c;
+  font-family: "Georgia", serif;
+  line-height: 1.1;
+}
+
+.ch-accent-unit {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  color: #a08b74;
+}
+
+/* 决定：全屏大图 + 白卡标签 */
+.ch-yes-wrap {
+  position: relative;
+  margin-top: 6rpx;
+  width: 92%;
+  height: 56vh;
+  border-radius: 14rpx;
+  overflow: hidden;
+  box-shadow: 0 12rpx 36rpx rgba(90, 60, 40, 0.2);
+}
+
+.ch-yes-img {
+  width: 100%;
+  height: 100%;
+}
+
+.ch-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 34rpx;
+  transform: translateX(-50%);
+  background: rgba(255, 253, 248, 0.94);
+  border: 1rpx solid #f3e6d0;
+  border-radius: 18rpx;
+  padding: 22rpx 44rpx;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 6rpx 20rpx rgba(60, 40, 30, 0.18);
+}
+
+.ch-badge-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #e2402c;
+  letter-spacing: 4rpx;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.ch-badge-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #a08b74;
+  letter-spacing: 3rpx;
+}
+
+/* 邀请：纯文字信笺 */
+.ch-quote-mark {
+  font-size: 76rpx;
+  line-height: 1;
+  color: #d3a97c;
+  font-family: "Georgia", serif;
+}
+
+.ch-quote {
+  margin-top: 6rpx;
+  font-size: 32rpx;
+  line-height: 2;
+  letter-spacing: 4rpx;
+  color: #4a3a32;
+  text-align: center;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.ch-sign {
+  margin-top: 30rpx;
+  font-size: 30rpx;
+  letter-spacing: 4rpx;
+  color: #e2402c;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
 }
 
 /* ========== ⑤ 幸福瞬间 ========== */
@@ -939,10 +1083,927 @@
   letter-spacing: 2rpx;
 }
 
-/* 封面屏：当前邀请函名称 */
-.cover-inv-name {
-  margin-top: 14rpx;
-  font-size: 26rpx;
+/* ========== 经典版长页模式 ========== */
+.page-long {
+  height: auto;
+  min-height: 100vh;
+}
+
+.long-body {
+  background: #fdf6e9;
+}
+
+/* 滚动渐显：进入视口后由 IntersectionObserver 加 .on */
+.reveal {
+  opacity: 0;
+  transform: translateY(36rpx);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.reveal.on {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 长页通用分节 */
+.sec {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 44rpx;
+  box-sizing: border-box;
+  background: #fdf6e9;
+}
+
+/* ⓪ 封面区：原第一页视觉在长页顶部的延续 */
+.lg-cover {
+  width: 100%;
+  padding: 90rpx 44rpx 26rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ① 头部：头像 + 囍 + 姓名 */
+.lg-head {
+  width: 100%;
+  padding: 96rpx 44rpx 64rpx;
+  box-sizing: border-box;
+}
+
+.lg-avatars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-avatar {
+  width: 172rpx;
+  height: 172rpx;
+  border-radius: 50%;
+}
+
+/* 新郎头像顺时针转 20°（图片为圆形内容+透明四角，绕中心旋转不缺角不空洞） */
+.lg-avatar-groom {
+  transform: rotate(20deg);
+}
+
+.lg-xi {
+  margin: 0 34rpx;
+  width: 96rpx;
+  height: 117rpx;
+}
+
+/* 名字行三列与头像行同构（172/96/172 + 34rpx 间距），名字逐一对齐头像中心 */
+.lg-names {
+  margin-top: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-name {
+  width: 172rpx;
+  text-align: center;
+  font-size: 44rpx;
+  letter-spacing: 8rpx;
+  color: #3d3833;
+  font-family: Georgia, "Songti SC", "SimSun", serif;
+}
+
+.lg-amp {
+  width: 96rpx;
+  margin: 0 34rpx;
+  text-align: center;
+  font-size: 44rpx;
   color: #8a8172;
+}
+
+.lg-scripts {
+  margin-top: 34rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-script {
+  width: 172rpx;
+  text-align: center;
+  font-size: 36rpx;
+  color: #c96f52;
+  font-family: "Snell Roundhand", "Segoe Script", "Brush Script MT", cursive;
+}
+
+.lg-script-gap {
+  width: 164rpx; /* 囍字 96 + 两侧间距 34×2，与头像行中列等宽 */
+}
+
+/* ② 主图 */
+.lg-hero {
+  position: relative;
+  width: 100%;
+  padding: 8rpx 36rpx 0;
+  box-sizing: border-box;
+}
+
+.lg-hero-img {
+  width: 100%;
+  display: block;
+}
+
+.lg-hero-fade {
+  position: absolute;
+  left: 36rpx;
+  right: 36rpx;
+  bottom: 0;
+  height: 140rpx;
+  background: linear-gradient(to bottom, rgba(253, 246, 233, 0), #fdf6e9);
+}
+
+.lg-hero-empty {
+  width: 100%;
+  height: 620rpx;
+  border: 2rpx dashed #d8c9ae;
+  border-radius: 18rpx;
+  background: #fbf4e6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-hero-plus {
+  font-size: 64rpx;
+  color: #c9b48e;
+}
+
+.lg-hero-tip {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: #b9a893;
+  letter-spacing: 2rpx;
+}
+
+/* ③ 故事标题 */
+.lg-storytitle {
+  width: 100%;
+  padding: 66rpx 44rpx 10rpx;
+  box-sizing: border-box;
+}
+
+.lg-st-main {
+  text-align: center;
+  font-size: 42rpx;
+  letter-spacing: 6rpx;
+  color: #3d3833;
+  font-family: Georgia, "Songti SC", "SimSun", serif;
+}
+
+.lg-st-script {
+  margin-top: -10rpx;
+  text-align: right;
+  padding-right: 56rpx;
+  font-size: 42rpx;
+  color: #cf6b52;
+  font-family: "Snell Roundhand", "Segoe Script", "Brush Script MT", cursive;
+}
+
+/* ⑦ 幸福瞬间：长页内直接平铺网格（不用内嵌滚动） */
+.lg-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  width: 100%;
+}
+
+/* ⑩ 尾页收尾 */
+.sec-end {
+  padding-bottom: 140rpx;
+}
+
+.lg-end {
+  height: 2rpx;
+}
+
+/* ========== 经典版长页 S1-S10 模板分节 ========== */
+/* 通用占位框（槽位未配置照片时显示，宽高由组合类/容器决定） */
+.ph-box {
+  border: 2rpx dashed #d8c9ae;
+  border-radius: 14rpx;
+  background: #fbf4e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
   letter-spacing: 4rpx;
+  color: #b9a893;
+  box-sizing: border-box;
+}
+
+.ph-fill {
+  width: 100%;
+  height: 100%;
+}
+
+/* S1 门当户对 */
+.s1-row {
+  display: flex;
+  width: 100%;
+  gap: 28rpx;
+}
+
+.s1-photo {
+  width: 296rpx;
+  height: 400rpx;
+  flex-shrink: 0;
+  border-radius: 14rpx;
+  overflow: hidden;
+  box-shadow: 0 10rpx 28rpx rgba(90, 60, 40, 0.14);
+}
+
+.s1-img {
+  width: 100%;
+  height: 100%;
+}
+
+.s1-text {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8rpx;
+  text-align: right;
+}
+
+.s1-line {
+  font-size: 25rpx;
+  line-height: 1.75;
+  letter-spacing: 2rpx;
+  color: #3d3833;
+}
+
+.s1-slogan {
+  align-self: flex-start; /* 分节是 flex column + 居中，靠左需单独声明 */
+  margin: 52rpx 0 34rpx;
+  font-size: 25rpx;
+  letter-spacing: 2rpx;
+  color: #3d3833;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.s1-pair {
+  display: flex;
+  width: 100%;
+  gap: 24rpx;
+  align-items: flex-start;
+  justify-content: space-between; /* 左图贴左、右图贴右，中间自动留距 */
+}
+
+.s1-pa {
+  width: 300rpx; /* 稍调窄（原半宽 319） */
+  height: 380rpx;
+  border-radius: 14rpx;
+}
+
+.s1-pb {
+  width: 253rpx; /* 按原图 2:3 比例（380 × 2/3），aspectFill 不再裁切放大 */
+  height: 380rpx;
+  border-radius: 14rpx;
+}
+
+/* S2 结婚啦 · 日历卡 */
+.s2 {
+  padding-top: 0; /* 覆盖 .sec 的 80rpx，英文引言整段上移（累计 80） */
+  padding-bottom: 270rpx; /* 日历 translateY(40%) 悬空约 189rpx + 余量 */
+}
+
+.s2-quote {
+  font-size: 26rpx;
+  line-height: 1.9;
+  letter-spacing: 1rpx;
+  color: #e2402c;
+  font-style: italic;
+  font-family: Georgia, "Times New Roman", serif;
+  text-align: right;
+}
+
+.s2-quote2 {
+  margin-bottom: 34rpx;
+}
+
+.s2-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.s2-img {
+  width: 100%; /* 实测 4672x7008 = 2:3，撑满内容区 662rpx、左右顶齐内容边缘 */
+  height: 993rpx; /* = 662×3/2，原比例零裁切 */
+  margin: 0 auto;
+  border-radius: 14rpx;
+}
+
+.s2-ph {
+  height: 560rpx;
+}
+
+.cal-card {
+  position: absolute;
+  left: 90rpx; /* 比撑满的海报窄一圈，露出两侧照片边 */
+  right: 90rpx;
+  bottom: 0;
+  transform: translateY(40%); /* 整体上移：大部分压在照片上，仅下部 40% 悬空 */
+  /* 垂直渐变：上半奶油底可读，下半完全透明与背景融为一体（故去边框/阴影） */
+  background: linear-gradient(to bottom, rgba(255, 253, 248, 0.88) 0%, rgba(255, 253, 248, 0.82) 42%, rgba(255, 253, 248, 0) 100%);
+  border-radius: 18rpx;
+  padding: 36rpx 30rpx 34rpx;
+  box-sizing: border-box;
+}
+
+/* 日历顶部正中囍字图（684x833 竖图，0.821 比例：88→107） */
+.cal-xi {
+  position: absolute;
+  top: -54rpx; /* 高 107 的一半探出日历外，一半压在日历上 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88rpx;
+  height: 107rpx;
+  z-index: 2;
+}
+
+.cal-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.cal-date {
+  font-size: 56rpx;
+  color: #e2402c;
+  font-weight: bold;
+  font-family: "Heiti SC", "SimHei", "STHeiti", sans-serif; /* 黑体 */
+}
+
+.cal-year {
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  color: #b08a6a;
+  font-family: "Heiti SC", "SimHei", "STHeiti", sans-serif; /* 黑体 */
+}
+
+.cal-week {
+  display: flex;
+  margin-top: 30rpx; /* 行间距加宽，整体垂直拉伸 */
+  padding-bottom: 12rpx;
+  border-bottom: 2rpx solid #e2402c; /* 星期行与日期之间的红色细横线 */
+}
+
+.cal-wc {
+  flex: 1;
+  text-align: center;
+  font-size: 22rpx;
+  color: #b08a6a;
+}
+
+.cal-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 16rpx;
+}
+
+.cal-day {
+  width: calc(100% / 7);
+  height: 66rpx; /* 行距加宽 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-num {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25rpx;
+  color: #6b5d4d;
+}
+
+.cal-num.on {
+  position: relative;
+  background: transparent;
+  color: #e2402c;
+  font-weight: bold;
+  animation: calHeart 1.6s ease-in-out infinite;
+}
+
+/* 空心心形包住当天日期（♡ 绘制在数字后面一层） */
+.cal-num.on::before {
+  content: '♡';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -54%);
+  font-size: 62rpx;
+  line-height: 1;
+  color: #e2402c;
+  z-index: -1;
+}
+
+/* S3 慢慢亦漫漫（标题已删，诗直接顶上贴近日历悬空处） */
+.s3 {
+  padding-top: 0; /* 覆盖 .sec 的 80rpx，文案整体上移 */
+}
+
+.s3-poem {
+  margin-top: 0;
+}
+
+.s3-line {
+  font-size: 25rpx;
+  line-height: 2.15;
+  letter-spacing: 3rpx;
+  color: #8a5a4a;
+  text-align: center;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.s3-full {
+  position: relative;
+  width: 100%;
+  margin-top: 40rpx;
+}
+
+.s3-img {
+  width: 100%;
+  height: 442rpx; /* DSC09227 = 3:2 横图：精确比例 662/1.5=441.33，取 442 略高于图比例 → aspectFill 改为高度撑满、左右仅裁 0.1%，底边完整不产生采样暗线 */
+  border-radius: 14rpx;
+}
+
+.s3-ph {
+  height: 780rpx;
+}
+
+.s3-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 150rpx;
+  pointer-events: none;
+}
+
+.s3-fade-top {
+  top: 0;
+  border-radius: 14rpx 14rpx 0 0;
+  background: linear-gradient(to bottom, #fdf6e9, rgba(253, 246, 233, 0));
+}
+
+.s3-fade-btm {
+  bottom: 0;
+  border-radius: 0 0 14rpx 14rpx;
+  background: linear-gradient(to top, #fdf6e9, rgba(253, 246, 233, 0));
+}
+
+.s3-words {
+  position: absolute;
+  right: 34rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 22rpx;
+}
+
+.s3-word {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.s3-ch {
+  font-size: 30rpx;
+  line-height: 1.35;
+  color: #fffdf8;
+  font-family: Georgia, serif;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.35);
+}
+
+.s3-pair {
+  display: flex;
+  width: 100%;
+  gap: 24rpx;
+  margin-top: 34rpx;
+}
+
+.s3-pi {
+  width: calc((100% - 24rpx) / 2);
+  height: 479rpx; /* 左右均 2:3 竖图（4672x7008 实测）：宽 319 对应高 319*1.5≈479，原比例零裁切 */
+  border-radius: 14rpx;
+}
+
+/* S4 关键词 */
+.s4-title {
+  font-size: 42rpx;
+  letter-spacing: 12rpx;
+  color: #3d3833;
+  font-family: Georgia, "Songti SC", "SimSun", serif;
+  text-align: center;
+}
+
+.s4-quote {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  letter-spacing: 3rpx;
+  color: #b08a6a;
+  text-align: center;
+}
+
+.s4-photo {
+  position: relative;
+  width: 100%;
+  margin-top: 36rpx;
+}
+
+.s4-img {
+  width: 100%;
+  height: 820rpx;
+  border-radius: 14rpx;
+}
+
+.s4-ph {
+  height: 820rpx;
+}
+
+.s4-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 200rpx;
+  border-radius: 0 0 14rpx 14rpx;
+  background: linear-gradient(to top, rgba(40, 20, 10, 0.45), rgba(40, 20, 10, 0));
+  pointer-events: none;
+}
+
+.s4-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 34rpx;
+  text-align: center;
+  font-size: 24rpx;
+  letter-spacing: 6rpx;
+  color: #fff8ef;
+}
+
+/* S5 WELCOME TO OUR WEDDING */
+.s5-row {
+  display: flex;
+  width: 100%;
+  gap: 26rpx;
+}
+
+/* 两图并列等大：均实测 3:2 横图（7008x4672），宽 318 对应高 212 零裁切 */
+.s5-high {
+  width: calc((100% - 26rpx) / 2);
+  height: 212rpx;
+  border-radius: 14rpx;
+}
+
+.s5-low {
+  width: calc((100% - 26rpx) / 2);
+  height: 212rpx;
+  border-radius: 14rpx;
+}
+
+.s5-inv {
+  margin-top: 56rpx;
+  font-size: 64rpx;
+  color: #cf6b52;
+  font-family: "Snell Roundhand", "Segoe Script", "Brush Script MT", cursive;
+}
+
+.s5-names {
+  margin-top: 18rpx;
+  font-size: 38rpx;
+  letter-spacing: 8rpx;
+  color: #3d3833;
+  font-family: Georgia, "Songti SC", "SimSun", serif;
+}
+
+.s5-sub {
+  margin-top: 14rpx;
+  font-size: 20rpx;
+  letter-spacing: 8rpx;
+  color: #b9a893;
+  font-family: Georgia, serif;
+}
+
+/* S6 单图 + 诗（原第二张图与竖排日期已删） */
+.s6-img {
+  width: 100%;
+  height: 993rpx; /* dateA 实测 2:3 竖图：占满 662 宽对应高 993，原比例零裁切（与 S2 海报同款全幅） */
+  border-radius: 14rpx;
+}
+
+.s6-poem {
+  margin-top: 44rpx;
+}
+
+.s6-line {
+  font-size: 25rpx;
+  line-height: 2.3;
+  letter-spacing: 3rpx;
+  color: #8a5a4a;
+  text-align: center;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+/* S7 倒计时 · 敬备喜酌 */
+.s7-photo {
+  position: relative;
+  width: 100%;
+}
+
+.s7-img {
+  width: 100%;
+  height: 442rpx; /* DSC09312 实测 3:2 横图：662 宽对应高 441.33，取 442 高度撑满零裁切且底边不出采样线 */
+  border-radius: 14rpx;
+}
+
+.s7-ph {
+  height: 442rpx;
+}
+
+.s7-bless {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 34rpx;
+  margin: 50rpx 0 6rpx;
+}
+
+.s7-bless-t {
+  font-size: 28rpx;
+  letter-spacing: 8rpx;
+  color: #8a5a4a;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.s7-xi {
+  font-size: 44rpx;
+  color: #e2402c;
+  font-weight: bold;
+  font-family: "Songti SC", "SimSun", serif;
+}
+
+.s7-poem {
+  margin-top: 20rpx;
+}
+
+/* S8 婚礼时间 / S9 婚礼地点 共用头部 */
+.s8-head {
+  text-align: center;
+}
+
+.s8-t {
+  font-size: 40rpx;
+  letter-spacing: 12rpx;
+  color: #3d3833;
+  font-weight: bold;
+  font-family: Georgia, "Songti SC", "SimSun", serif;
+}
+
+.s8-en {
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  letter-spacing: 10rpx;
+  color: #dba385;
+  font-family: Georgia, serif;
+}
+
+.s8-date {
+  margin-top: 44rpx;
+  font-size: 30rpx;
+  letter-spacing: 4rpx;
+  color: #4a3a32;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.s8-lunar {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  color: #b08a6a;
+}
+
+.s8-time {
+  margin-top: 16rpx;
+  font-size: 56rpx; /* 原 104rpx 红色大字太浮夸，改低调：暖黑中号细体 */
+  color: #4a3a32;
+  font-weight: normal;
+  letter-spacing: 6rpx;
+  line-height: 1.15;
+  font-family: Georgia, serif;
+}
+
+/* S9 婚礼地点 */
+.s9-mapwrap {
+  position: relative;
+  width: 100%;
+  margin-top: 34rpx;
+}
+
+.s9-map {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 14rpx;
+}
+
+.s9-nav {
+  position: absolute;
+  right: 22rpx;
+  bottom: 22rpx;
+  background: #e2402c;
+  color: #fff8ef;
+  font-size: 24rpx;
+  letter-spacing: 2rpx;
+  padding: 14rpx 30rpx;
+  border-radius: 40rpx;
+  box-shadow: 0 6rpx 18rpx rgba(226, 64, 44, 0.35);
+}
+
+.s9-addr {
+  margin-top: 30rpx;
+  font-size: 32rpx;
+  letter-spacing: 4rpx;
+  color: #4a3a32;
+  font-weight: bold;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.s9-sub {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #a08b74;
+}
+
+/* S10 出席回执 + 尾页 */
+.s10 {
+  padding-bottom: 150rpx;
+}
+
+.f10-card {
+  width: 100%;
+  background: #fffdf8;
+  border: 1rpx solid #f3e6d0;
+  border-radius: 20rpx;
+  padding: 44rpx 38rpx;
+  box-sizing: border-box;
+  box-shadow: 0 10rpx 30rpx rgba(226, 64, 44, 0.06);
+}
+
+.f10-title {
+  text-align: center;
+  font-size: 32rpx;
+  letter-spacing: 6rpx;
+  color: #e2402c;
+  font-weight: bold;
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", serif;
+}
+
+.f10-row {
+  display: flex;
+  align-items: center;
+  margin-top: 30rpx;
+}
+
+.f10-label {
+  width: 180rpx;
+  font-size: 26rpx;
+  color: #6b5d4d;
+}
+
+.f10-req {
+  color: #e2402c;
+  margin-right: 4rpx;
+}
+
+.f10-input {
+  flex: 1;
+  background: #faf3e6;
+  border-radius: 14rpx;
+  padding: 18rpx 24rpx;
+  font-size: 26rpx;
+  color: #5a4638;
+}
+
+.f10-ph {
+  color: #c8b89a;
+}
+
+.f10-step {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.f10-sbtn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 2rpx solid #eec9b8;
+  color: #e2402c;
+  font-size: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffdf8;
+}
+
+.f10-num {
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #e2402c;
+  min-width: 110rpx;
+  text-align: center;
+  font-family: Georgia, serif;
+}
+
+.f10-submit {
+  margin-top: 38rpx;
+  height: 92rpx;
+  background: linear-gradient(135deg, #ea5a42 0%, #e2402c 100%);
+  color: #fff8ef;
+  border-radius: 46rpx;
+  font-size: 30rpx;
+  letter-spacing: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 22rpx rgba(226, 64, 44, 0.3);
+}
+
+.f10-no {
+  margin-top: 22rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #b9a893;
+  text-decoration: underline;
+  letter-spacing: 2rpx;
+}
+
+.f10-done {
+  margin-top: 38rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #e2402c;
+  letter-spacing: 2rpx;
+}
+
+.f10-stats {
+  margin-top: 24rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #a08b74;
+}
+
+.f10-num-r {
+  color: #e2402c;
+  font-weight: bold;
+  font-size: 26rpx;
+}
+
+.s10-xi {
+  margin-top: 90rpx;
+  font-size: 96rpx;
+  color: #e2402c;
+  font-weight: bold;
+  font-family: "Songti SC", "SimSun", serif;
+}
+
+.s10-close-img {
+  display: block;
+  margin-top: 30rpx;
+  width: 480rpx; /* 文字图 507x69（7.35:1）：480 宽对应高约 65，接近原 52rpx 字级视觉 */
+  height: 65rpx;
+}
+
+.s10-date {
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  letter-spacing: 3rpx;
+  color: #b08a6a;
+}
+
+/* 分节内图片统一块级显示，去除基线空隙 */
+.s1-img, .s1-pa, .s1-pb, .s2-img, .s3-img, .s3-pi, .s4-img,
+.s5-high, .s5-low, .s6-img, .s7-img {
+  display: block;
+}
+
+/* S2 日历 6 号：心形呼吸缩放（新命名，避免与页脚 heartbeat 冲突） */
+@keyframes calHeart {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }

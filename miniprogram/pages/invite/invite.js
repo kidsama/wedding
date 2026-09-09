@@ -1,4 +1,4 @@
-const { API_BASE, WEDDING, ASSET_BASE, ASSETS, INVITATIONS } = require('../../utils/config');
+const { API_BASE, WEDDING, ASSET_BASE, ASSETS, INVITATIONS, CLASSIC_SLOTS } = require('../../utils/config');
 const music = require('../../utils/music');
 const { parseWeddingDate, pad, getVisitorKey } = require('../../utils/common');
 
@@ -7,21 +7,131 @@ const ICONS = {
   musicOn: ASSET_BASE + ASSETS.musicOn
 };
 
-// 兜底照片列表（云托管 /api/photos 请求失败时使用）
+// 兜底照片列表（邀请函未配置 photos 时使用）
 const FALLBACK_PHOTOS = Array.from({ length: 12 }, (_, i) => ({
   url: `https://picsum.photos/seed/${i + 1}/400/400`,
   title: `照片 ${i + 1}`
 }));
 
-// 穿插在照片之间的情话
-const LOVE_QUOTES = [
-  '一见倾心，再见倾城。',
-  '山水一程，三生有幸。',
-  '往后余生，风雪是你，平淡是你。',
-  '陪伴，是最长情的告白。',
-  '春风十里，不如你。',
-  '愿岁月可回首，且以深情共白头。'
+// 云存储照片目录（/图片压缩-小程序/，中文已 URL 编码）
+const PHOTO_DIR = '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/';
+
+// 经典版长页 S1-S10 槽位照片直链（值为空的槽位不生成，wxml 显示占位框）
+const CLASSIC_IMG = {};
+Object.keys(CLASSIC_SLOTS).forEach((k) => {
+  if (CLASSIC_SLOTS[k]) CLASSIC_IMG[k] = ASSET_BASE + PHOTO_DIR + encodeURIComponent(CLASSIC_SLOTS[k]);
+});
+
+// S2 日历卡：按婚礼日期生成当月月历（周一起始，婚礼日标红）
+function buildCal(ts) {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = d.getMonth();
+  const day = d.getDate();
+  const lead = (new Date(y, m, 1).getDay() + 6) % 7; // 周一=0
+  const days = new Date(y, m + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < lead; i++) cells.push({ d: null, on: false, k: 'b' + i });
+  for (let i = 1; i <= days; i++) cells.push({ d: i, on: i === day, k: 'd' + i });
+  const tail = (7 - (cells.length % 7)) % 7;
+  for (let i = 0; i < tail; i++) cells.push({ d: null, on: false, k: 'e' + i });
+  return { label: `${m + 1}/${pad(day)}`, year: String(y), cells };
+}
+
+const WED_TS = parseWeddingDate(WEDDING.date);
+const WED_D = isNaN(WED_TS) ? null : new Date(WED_TS);
+const WEEK_CN = ['日', '一', '二', '三', '四', '五', '六'];
+const DATE_LONG = WED_D
+  ? `${WED_D.getFullYear()}年${WED_D.getMonth() + 1}月${WED_D.getDate()}日 星期${WEEK_CN[WED_D.getDay()]}`
+  : '';
+const TIME_SHORT = WED_D ? `${pad(WED_D.getHours())}:${pad(WED_D.getMinutes())}` : '';
+const CAL_DATA = WED_D ? buildCal(WED_TS) : { label: '', year: '', cells: [] };
+// S9 地图图钉（包内本地图标）
+const MAP_MARKERS = [
+  {
+    id: 1,
+    latitude: Number(WEDDING.latitude),
+    longitude: Number(WEDDING.longitude),
+    iconPath: '/images/map-pin.png',
+    width: 36,
+    height: 48
+  }
 ];
+
+// 按邀请函配置的文件名生成照片直链列表（未配置则回退兜底图）
+function photosForInvite(inv) {
+  const files = inv && inv.photos;
+  if (!files || files.length === 0) return FALLBACK_PHOTOS;
+  return files.map((f) => ({ url: ASSET_BASE + PHOTO_DIR + encodeURIComponent(f), title: f }));
+}
+
+// 故事区六屏「杂志画册式」章节：遇见/四季/旅途/日常/决定/邀请
+// 文案为占位草稿（相遇年份、早餐数等），拿到真实素材后直接替换即可
+function buildChapters(list) {
+  // 从第 start 张起取 n 张；g 记录全局序号，供大图预览定位
+  const take = (start, n) => {
+    const out = [];
+    for (let i = start; i < start + n && i < list.length; i++) {
+      out.push({ url: list[i].url, g: i });
+    }
+    return out;
+  };
+  const dateStr = (WEDDING.date || '').slice(0, 10).replace(/-/g, '.');
+  return [
+    {
+      layout: 'hero',
+      no: 'CHAPTER 01',
+      title: '遇 见',
+      en: 'THE FIRST HELLO',
+      lines: ['人海茫茫，多看了你一眼，就再也没能移开。'],
+      foot: '20XX · 我们相遇的城市', // 占位：换成真实的相遇年份与地点
+      photo: take(0, 1)[0] || null
+    },
+    {
+      layout: 'grid4',
+      no: 'CHAPTER 02',
+      title: '四 季',
+      en: 'FOUR SEASONS',
+      labels: ['春 · 相识', '夏 · 同行', '秋 · 相守', '冬 · 归家'],
+      photos: take(1, 4)
+    },
+    {
+      layout: 'strip',
+      no: 'CHAPTER 03',
+      title: '旅 途',
+      en: 'ON THE ROAD',
+      lines: ['一起走过的路，都成了回忆里的坐标。'],
+      photos: take(5, 3)
+    },
+    {
+      layout: 'daily',
+      no: 'CHAPTER 04',
+      title: '日 常',
+      en: 'EVERYDAY LIFE',
+      accentNum: '1000+', // 占位：换成真实数字
+      accentUnit: '顿一起吃的早餐',
+      photos: take(8, 3)
+    },
+    {
+      layout: 'yes',
+      no: 'CHAPTER 05',
+      title: '决 定',
+      en: 'SAID YES',
+      badgeTitle: '终身合伙人 ✓',
+      badgeSub: `已签约 · ${dateStr}`,
+      photo: take(11, 1)[0] || null
+    },
+    {
+      layout: 'letter',
+      no: 'CHAPTER 06',
+      title: '邀 请',
+      en: 'YOU ARE INVITED',
+      quote: '我们想把人生里最重要的一天，留一个位置给你。',
+      lines: [dateStr, WEDDING.venue || '', '期待您的见证与祝福。'].filter(Boolean),
+      sign: `${WEDDING.groom} & ${WEDDING.bride}`
+    }
+  ];
+}
 
 // 弹幕占位祝福（后端暂无数据时展示）
 const DEFAULT_BLESSINGS = [
@@ -41,6 +151,12 @@ Page({
     wedding: WEDDING,
     monogram: MONOGRAM,
     icons: ICONS,
+    coverIllus: ASSET_BASE + ASSETS.coverIllus, // 封面插画（云存储直链）
+    coverTitle: ASSET_BASE + ASSETS.coverTitle, // 封面标题图（云存储直链）
+    headGroom: ASSET_BASE + ASSETS.headGroom, // 长页头部新郎头像（云存储直链）
+    headBride: ASSET_BASE + ASSETS.headBride, // 长页头部新娘头像（云存储直链）
+    xiImg: ASSET_BASE + ASSETS.xiImg, // 长页头部囍字图（云存储直链）
+    closeImg: ASSET_BASE + ASSETS.closeImg, // 长页尾页"好久不见 婚礼见"文字图（云存储直链）
     // 列表 / 详情 两模式（像相册页：先选邀请函，点开看具体请柬）
     mode: 'list',
     invitations: INVITATIONS,
@@ -48,7 +164,24 @@ Page({
     current: 0,
     photos: [],
     heroUrl: '',
-    stories: [],
+    chapters: [],
+    // 详情排版模式：swiper=整屏翻页（默认），long=经典版整页长图滚动
+    layout: 'swiper',
+    heroLong: '',
+    // 经典版长页 S1-S10 数据（槽位照片 / 日历卡 / 竖排字母 / 婚礼日期时间 / 地图图钉）
+    classic: CLASSIC_IMG,
+    cal: CAL_DATA,
+    loveWords: [
+      { k: 'w1', letters: [{ t: 'F' }, { t: 'a' }, { t: 'l' }, { t: 'l' }] },
+      { k: 'w2', letters: [{ t: 'I' }, { t: 'n' }] },
+      { k: 'w3', letters: [{ t: 'L' }, { t: 'o' }, { t: 'v' }, { t: 'e' }] }
+    ],
+    welcomeLetters: ['W', 'E', 'L', 'C', 'O', 'M', 'E'],
+    dateLong: DATE_LONG,
+    timeShort: TIME_SHORT,
+    mapMarkers: MAP_MARKERS,
+    classicRsvpDone: false,
+    revealed: {},
     countdown: { d: '0', h: '00', m: '00', s: '00' },
     married: false,
     danmakuLanes: [[], [], []],
@@ -78,20 +211,42 @@ Page({
     }
     this._vk = getVisitorKey();
     this.setData({ musicPlaying: music.isPlaying() });
+    this.placeMusicButton();
     this._unsubMusic = music.subscribe((p) => this.setData({ musicPlaying: p }));
     this.sendVisit();
     this.fetchVisitStats();
-    this.fetchPhotos();
     this.fetchBlessings();
     this.fetchRsvp();
     this.fetchRsvpStats();
     this.initCountdown();
   },
 
+  // 音乐按钮与首页音乐按钮保持在同一屏幕高度：
+  // 首页是 custom 导航（页面原点=屏幕顶），按钮屏幕位置 = 胶囊 bottom + 12；
+  // 本页是系统导航栏（页面原点=导航栏底部 = 胶囊 bottom + 胶囊距状态栏间距），
+  // 故页面内 top = (胶囊bottom + 12) - (胶囊bottom + gap) = 12 - gap（gap = 胶囊top - 状态栏高）
+  placeMusicButton() {
+    try {
+      const rect = wx.getMenuButtonBoundingClientRect();
+      const win = (wx.getWindowInfo && wx.getWindowInfo()) || wx.getSystemInfoSync();
+      if (rect && rect.top && win && win.statusBarHeight) {
+        const gap = rect.top - win.statusBarHeight;
+        this.setData({ musicTop: Math.max(12 - gap, 4) + 'px' });
+      }
+    } catch (e) {
+      /* 取不到胶囊位置时用 wxss 里的兜底 top */
+    }
+  },
+
   onShow() {
     // onLoad 里调用可能因时机过早未生效，首次 onShow 再补一次；
     // 之后切 Tab 回来不再触发，避免把正常浏览时的菜单栏也藏掉
     if (this._tabBarPending) this.hideTabBarForShare();
+    // 长页模式：从大图预览/后台返回时恢复自动上滚
+    if (this.data.layout === 'long' && this.data.mode === 'detail') {
+      clearTimeout(this._startTimer);
+      this._startTimer = setTimeout(() => this.startAutoScroll(), 1500);
+    }
   },
 
   hideTabBarForShare() {
@@ -99,9 +254,15 @@ Page({
     wx.hideTabBar({ animation: false, fail: () => {} });
   },
 
+  onHide() {
+    // 长页模式切后台/预览大图时停止自动上滚，回来由 onShow 恢复
+    this.stopAutoScroll();
+  },
+
   onUnload() {
     if (this._timer) clearInterval(this._timer);
     if (this._unsubMusic) this._unsubMusic();
+    this.leaveLongMode();
   },
 
   // ========== 邀请函列表 / 详情切换 ==========
@@ -113,11 +274,26 @@ Page({
     const list = this.data.invitations || [];
     const inv = list.find((i) => i.id === id) || list[0];
     if (!inv) return;
-    this.setData({ mode: 'detail', currentInvite: inv, current: 0 });
-    wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: `邀请函 · ${inv.name}` });
+    this.setData({
+      mode: 'detail',
+      currentInvite: inv,
+      current: 0,
+      layout: inv.layout === 'long' ? 'long' : 'swiper',
+      revealed: {},
+      heroLong: inv.hero ? ASSET_BASE + inv.hero : '',
+      classicRsvpDone: false
+    });
+    // 每封邀请函用自己的十几张照片：六屏杂志式章节 + 幸福瞬间网格共用
+    this.applyPhotos(photosForInvite(inv));
+    // 导航标题不带邀请函名（「经典版」等内部命名不展示给宾客）
+    wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: '邀请函' });
+    // 经典版长页：滚动渐显 + 缓慢自动上滚；其余邀请函维持整屏翻页
+    if (this.data.layout === 'long') this.enterLongMode();
+    else this.leaveLongMode();
   },
 
   backToInvList() {
+    this.leaveLongMode();
     this.setData({ mode: 'list', currentInvite: null, current: 0 });
     wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: '婚礼邀请函' });
   },
@@ -125,6 +301,112 @@ Page({
   // 翻页追踪：驱动各屏入场渐显动画
   onSwiperChange(e) {
     this.setData({ current: e.detail.current });
+  },
+
+  // ========== 经典版长页模式：滚动渐显 + 缓慢自动上滚 ==========
+  onPageScroll(e) {
+    this._scrollTop = e.scrollTop;
+  },
+
+  enterLongMode() {
+    this._scrollTop = 0;
+    this._userHold = false;
+    setTimeout(() => this.setupReveal(), 200);
+    // 先让宾客看一会头部，再开始缓缓上滚
+    clearTimeout(this._startTimer);
+    this._startTimer = setTimeout(() => this.startAutoScroll(), 2000);
+  },
+
+  leaveLongMode() {
+    this.stopAutoScroll();
+    clearTimeout(this._startTimer);
+    clearTimeout(this._resumeTimer);
+    this.disconnectReveal();
+    this._userHold = false;
+  },
+
+  startAutoScroll() {
+    if (this._autoTimer || this.data.layout !== 'long' || this.data.mode !== 'detail') return;
+    this.computeLongMaxH();
+    // 约 33px/s 匀速上滚，手指触摸即停
+    this._autoTimer = setInterval(() => this.tickAutoScroll(), 30);
+  },
+
+  stopAutoScroll() {
+    if (this._autoTimer) {
+      clearInterval(this._autoTimer);
+      this._autoTimer = null;
+    }
+  },
+
+  tickAutoScroll() {
+    if (this._userHold) return;
+    const next = (this._scrollTop || 0) + 1;
+    if (this._longMaxH && next >= this._longMaxH) {
+      this.stopAutoScroll(); // 滚到底自动停止
+      return;
+    }
+    wx.pageScrollTo({ scrollTop: next, duration: 0, fail: () => {} });
+  },
+
+  computeLongMaxH() {
+    const q = wx.createSelectorQuery();
+    q.select('.long-body').boundingClientRect();
+    q.exec((res) => {
+      if (!res || !res[0]) return;
+      let wh = 667;
+      try {
+        wh = (wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()).windowHeight;
+      } catch (err) {
+        wh = 667;
+      }
+      this._longMaxH = Math.max(0, res[0].height - wh);
+    });
+    // 图片加载会让内容变高，延迟再校准两次
+    setTimeout(() => { if (this._autoTimer) this.computeLongMaxH(); }, 3000);
+    setTimeout(() => { if (this._autoTimer) this.computeLongMaxH(); }, 8000);
+  },
+
+  // 暂停自动上滚 ms 毫秒（触摸/弹窗/看大图时用）
+  pauseAuto(ms) {
+    clearTimeout(this._resumeTimer);
+    this._userHold = true;
+    this._resumeTimer = setTimeout(() => { this._userHold = false; }, ms || 4000);
+  },
+
+  onLongTouchStart() {
+    clearTimeout(this._resumeTimer);
+    this._userHold = true;
+  },
+
+  onLongTouchEnd() {
+    this.pauseAuto(4000);
+  },
+
+  setupReveal() {
+    this.disconnectReveal();
+    if (this.data.layout !== 'long') return;
+    this._revealObs = wx.createIntersectionObserver(this, { observeAll: true });
+    this._revealObs.relativeToViewport({ bottom: 80 }).observe('.reveal', (res) => {
+      const sec = res.dataset && res.dataset.sec;
+      if (res.intersectionRatio > 0 && sec && !this.data.revealed[sec]) {
+        this.setData({ ['revealed.' + sec]: true });
+      }
+    });
+    // 兜底：观察器异常时直接全部显示，避免内容被 opacity:0 卡住
+    setTimeout(() => {
+      if (this.data.layout !== 'long' || Object.keys(this.data.revealed).length > 0) return;
+      const all = { h0: true, h1: true, h2: true, h3: true, s1: true, s2: true, s3: true, s4: true, s5: true, s6: true, s7: true, s8: true, s9: true, s10: true };
+      (this.data.chapters || []).forEach((c, i) => { all['c' + i] = true; });
+      this.setData({ revealed: all });
+    }, 1200);
+  },
+
+  disconnectReveal() {
+    if (this._revealObs) {
+      this._revealObs.disconnect();
+      this._revealObs = null;
+    }
   },
 
   // ========== 访问记录 ==========
@@ -204,6 +486,11 @@ Page({
     if (attend === null) {
       return wx.showToast({ title: '请先选择是否出席', icon: 'none' });
     }
+    this.postRsvp(attend);
+  },
+
+  // 回执提交公共实现（swiper 版与经典版长页共用）
+  postRsvp(attend) {
     wx.request({
       url: `${API_BASE}/api/rsvp`,
       method: 'POST',
@@ -217,7 +504,8 @@ Page({
       success: (res) => {
         if (res.data && res.data.code === 0) {
           wx.showToast({ title: attend ? '期待您的到来 ❤' : '已收到您的回复', icon: 'none' });
-          this.setData({ rsvpMine: true });
+          this.setData({ rsvpMine: true, classicRsvpDone: true });
+          if (this.data.layout === 'long') this.pauseAuto(6000);
           this.fetchRsvpStats();
         } else {
           wx.showToast({ title: (res.data && res.data.errorMsg) || '提交失败', icon: 'none' });
@@ -227,48 +515,51 @@ Page({
     });
   },
 
+  // 经典版长页 S10：确认出席（姓名必填）
+  submitClassicRsvp() {
+    if (!this.data.rsvpName.trim()) {
+      return wx.showToast({ title: '请填写姓名', icon: 'none' });
+    }
+    this.postRsvp(true);
+  },
+
+  // 经典版长页 S10：无法到场
+  submitClassicNo() {
+    this.postRsvp(false);
+  },
+
+  // 经典版长页 S10：输入框聚焦期间暂停自动上滚，失焦后短暂停顿再恢复
+  onFormFocus() {
+    this.pauseAuto(600000);
+  },
+
+  onFormBlur() {
+    this.pauseAuto(4000);
+  },
+
+  // 经典版长页：点击分节大图预览单张
+  onImgTap(e) {
+    this.pauseAuto(4000);
+    const url = e.currentTarget.dataset.src;
+    if (url) wx.previewImage({ current: url, urls: [url] });
+  },
+
   rsvpGuestsSafe() {
     const g = Number(this.data.rsvpGuests);
     return isNaN(g) ? 1 : Math.max(1, Math.min(20, g));
   },
 
-  // ========== 照片列表 + 艺术分组 ==========
-  fetchPhotos() {
-    wx.request({
-      url: `${API_BASE}/api/photos`,
-      method: 'GET',
-      timeout: 8000,
-      success: (res) => {
-        const data = res.data && res.data.data;
-        if (res.data && res.data.code === 0 && Array.isArray(data) && data.length > 0) {
-          this.applyPhotos(data);
-        } else {
-          this.applyPhotos(FALLBACK_PHOTOS);
-        }
-      },
-      fail: () => this.applyPhotos(FALLBACK_PHOTOS)
-    });
-  },
-
+  // ========== 照片编排（六屏杂志式章节：遇见/四季/旅途/日常/决定/邀请） ==========
   applyPhotos(list) {
-    // 两两一组，配一句情话，奇数组左右互换形成错落感；每组独占一屏
-    const stories = [];
-    for (let i = 0; i < list.length; i += 2) {
-      stories.push({
-        a: list[i],
-        b: list[i + 1] || null,
-        quote: LOVE_QUOTES[stories.length % LOVE_QUOTES.length],
-        reverse: stories.length % 2 === 1
-      });
-    }
     this.setData({
       photos: list,
-      heroUrl: list[0].url,
-      stories
+      heroUrl: list.length ? list[0].url : '',
+      chapters: buildChapters(list)
     });
   },
 
   onPhotoTap(e) {
+    this.pauseAuto(4000);
     const urls = this.data.photos.map((p) => p.url);
     wx.previewImage({ current: urls[e.currentTarget.dataset.index], urls });
   },
@@ -350,10 +641,12 @@ Page({
   },
 
   openBlessModal() {
+    this.pauseAuto(600000); // 弹窗填写期间暂停自动上滚
     this.setData({ showBlessModal: true, blessName: '', blessText: '' });
   },
 
   closeBlessModal() {
+    this.pauseAuto(4000);
     this.setData({ showBlessModal: false });
   },
 
@@ -378,6 +671,7 @@ Page({
       timeout: 8000,
       success: (res) => {
         if (res.data && res.data.code === 0) {
+          this.pauseAuto(4000);
           this.setData({ showBlessModal: false });
           wx.showToast({ title: '感谢您的祝福 ❤', icon: 'none' });
           this.fetchBlessings();
