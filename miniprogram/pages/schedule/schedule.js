@@ -1,5 +1,6 @@
 const { API_BASE, WEDDING } = require('../../utils/config');
 const { getVisitorKey } = require('../../utils/common');
+const { request } = require('../../utils/api');
 
 Page({
   data: {
@@ -20,7 +21,7 @@ Page({
 
   // ========== 到场回执 ==========
   fetchRsvp() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/rsvp?visitorKey=${encodeURIComponent(this._vk)}`,
       method: 'GET',
       timeout: 8000,
@@ -39,7 +40,7 @@ Page({
   },
 
   fetchRsvpStats() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/rsvp/stats`,
       method: 'GET',
       timeout: 8000,
@@ -72,7 +73,7 @@ Page({
     if (attend === null) {
       return wx.showToast({ title: '请先选择是否出席', icon: 'none' });
     }
-    wx.request({
+    request({
       url: `${API_BASE}/api/rsvp`,
       method: 'POST',
       data: {

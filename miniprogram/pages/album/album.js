@@ -1,4 +1,5 @@
 const { API_BASE } = require('../../utils/config');
+const { request } = require('../../utils/api');
 
 // 兜底照片（云托管不可用时）：12 张占位图，自动分成两个相册预览效果
 const FALLBACK_PHOTOS = Array.from({ length: 12 }, (_, i) => ({
@@ -31,7 +32,7 @@ Page({
 
   // ========== 相册列表 ==========
   fetchAlbums() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/albums`,
       method: 'GET',
       timeout: 8000,

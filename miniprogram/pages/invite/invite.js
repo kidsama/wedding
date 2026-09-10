@@ -1,4 +1,5 @@
 const { API_BASE, WEDDING, ASSET_BASE, ASSETS, INVITATIONS, CLASSIC_SLOTS } = require('../../utils/config');
+const { request } = require('../../utils/api');
 const music = require('../../utils/music');
 const { parseWeddingDate, pad, getVisitorKey } = require('../../utils/common');
 
@@ -411,7 +412,7 @@ Page({
 
   // ========== 访问记录 ==========
   sendVisit() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/visit`,
       method: 'POST',
       data: { visitorKey: this._vk },
@@ -420,7 +421,7 @@ Page({
   },
 
   fetchVisitStats() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/visit/stats`,
       method: 'GET',
       timeout: 8000,
@@ -434,7 +435,7 @@ Page({
 
   // ========== 到场回执 ==========
   fetchRsvp() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/rsvp?visitorKey=${encodeURIComponent(this._vk)}`,
       method: 'GET',
       timeout: 8000,
@@ -453,7 +454,7 @@ Page({
   },
 
   fetchRsvpStats() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/rsvp/stats`,
       method: 'GET',
       timeout: 8000,
@@ -491,7 +492,7 @@ Page({
 
   // 回执提交公共实现（swiper 版与经典版长页共用）
   postRsvp(attend) {
-    wx.request({
+    request({
       url: `${API_BASE}/api/rsvp`,
       method: 'POST',
       data: {
@@ -614,7 +615,7 @@ Page({
 
   // ========== 亲友祝福（弹幕） ==========
   fetchBlessings() {
-    wx.request({
+    request({
       url: `${API_BASE}/api/blessings`,
       method: 'GET',
       timeout: 8000,
@@ -664,7 +665,7 @@ Page({
     if (!name) return wx.showToast({ title: '请填写您的称呼', icon: 'none' });
     if (!message) return wx.showToast({ title: '请填写祝福语', icon: 'none' });
 
-    wx.request({
+    request({
       url: `${API_BASE}/api/blessings`,
       method: 'POST',
       data: { name, message },

@@ -5,9 +5,11 @@ const ASSET_HOST = 'https://7072-prod-d1gxeb1e1cb3d88a0-1372364674.tcb.qcloud.la
 
 module.exports = {
   // 云托管服务域名（https 开头，结尾不带斜杠）
-  // 上线前需在小程序后台「开发设置 - 服务器域名 - request 合法域名」中填写同一域名
-  // 注意：必须与云托管控制台绑定的自定义域名一致（曾误拼 .tcbaccess.tencentcloudbase.com 后缀导致全部请求 404/证书不匹配）
+  // 注意：自定义域名当前证书未绑定成功，真机体验版走下方 CLOUD_ENV 官方通道，此域名仅作 API_BASE 前缀剥离用
   API_BASE: 'https://wedding.liushaowei.top',
+
+  // 微信云托管环境 ID（wx.cloud.callContainer 官方通道：免合法域名/免备案/免证书）
+  CLOUD_ENV: 'prod-d1gxeb1e1cb3d88a0',
 
   // 云存储素材域名（所有图片素材统一放云存储，本地包不放图片）
   ASSET_BASE: ASSET_HOST,

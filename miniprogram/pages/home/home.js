@@ -1,6 +1,7 @@
 const { API_BASE, WEDDING, ASSET_BASE, ASSETS } = require('../../utils/config');
 const music = require('../../utils/music');
 const { parseWeddingDate, pad } = require('../../utils/common');
+const { request } = require('../../utils/api');
 
 // 兜底海报（云托管 /api/photos 请求失败时使用）
 const FALLBACK_HERO = 'https://picsum.photos/seed/wedding/750/1400';
@@ -66,7 +67,7 @@ Page({
       this.setData({ hero: ASSET_BASE + ASSETS.homeHero });
       return;
     }
-    wx.request({
+    request({
       url: `${API_BASE}/api/photos`,
       method: 'GET',
       timeout: 8000,
