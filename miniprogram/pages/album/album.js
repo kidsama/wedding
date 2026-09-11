@@ -1,11 +1,4 @@
-const { API_BASE } = require('../../utils/config');
-const { request } = require('../../utils/api');
-
-// 兜底照片（云托管不可用时）：12 张占位图，自动分成两个相册预览效果
-const FALLBACK_PHOTOS = Array.from({ length: 12 }, (_, i) => ({
-  url: `https://picsum.photos/seed/${i + 1}/400/400`,
-  title: `照片 ${i + 1}`
-}));
+const { LOCAL_PHOTO_GROUPS } = require('../../utils/photos');
 
 // 各相册子标题（按相册名匹配，未匹配到用默认文案）
 const ALBUM_SUBTITLES = {
@@ -15,7 +8,7 @@ const ALBUM_SUBTITLES = {
 };
 const DEFAULT_SUBTITLE = '记录属于我们的美好瞬间';
 
-// 「婚礼现场」占位空相册：婚礼当天照片上传后端同名相册后，此占位自动隐藏
+// 「婚礼现场」占位空相册：婚礼当天照片在 utils/photos.js 加同名相册分组后，此占位自动隐藏
 const PLACEHOLDER_ALBUM = { name: '婚礼现场', cover: '', count: 0, photos: [] };
 
 Page({
@@ -27,36 +20,16 @@ Page({
   },
 
   onLoad() {
-    this.fetchAlbums();
+    this.applyAlbums(this.buildLocalAlbums());
   },
 
   // ========== 相册列表 ==========
-  fetchAlbums() {
-    request({
-      url: `${API_BASE}/api/albums`,
-      method: 'GET',
-      timeout: 8000,
-      success: (res) => {
-        const d = res.data && res.data.data;
-        if (res.data && res.data.code === 0 && Array.isArray(d) && d.length > 0) {
-          this.applyAlbums(d);
-        } else {
-          this.applyAlbums(this.splitIntoAlbums(null));
-        }
-      },
-      fail: () => this.applyAlbums(this.splitIntoAlbums(null))
-    });
-  },
-
-  // 兜底：把一组扁平照片按前后对半分成两个相册（后端未部署 /api/albums 时预览用）
-  splitIntoAlbums(list) {
-    const photos = (list && list.length > 0 ? list : FALLBACK_PHOTOS)
-      .map((p) => (typeof p === 'string' ? { url: p } : p));
-    const half = Math.ceil(photos.length / 2);
-    return [
-      { name: '婚纱照精选', photos: photos.slice(0, half) },
-      { name: '婚纱照', photos: photos.slice(half) }
-    ].filter((a) => a.photos.length > 0);
+  // 静态内置：照片走云存储直链（常驻可用），不调后端接口、不受云托管停机影响
+  buildLocalAlbums() {
+    return LOCAL_PHOTO_GROUPS.map((g) => ({
+      name: g.name,
+      photos: g.urls.map((u, i) => ({ url: u, title: `${g.name} ${i + 1}` }))
+    }));
   },
 
   applyAlbums(albums) {

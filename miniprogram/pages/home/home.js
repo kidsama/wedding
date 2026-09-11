@@ -1,10 +1,7 @@
-const { API_BASE, WEDDING, ASSET_BASE, ASSETS } = require('../../utils/config');
+const { WEDDING, ASSET_BASE, ASSETS } = require('../../utils/config');
 const music = require('../../utils/music');
 const { parseWeddingDate, pad } = require('../../utils/common');
-const { request } = require('../../utils/api');
-
-// 兜底海报（云托管 /api/photos 请求失败时使用）
-const FALLBACK_HERO = 'https://picsum.photos/seed/wedding/750/1400';
+const { LOCAL_PHOTO_GROUPS } = require('../../utils/photos');
 
 Page({
   data: {
@@ -61,29 +58,16 @@ Page({
   },
 
   // ========== 首页海报大图 ==========
-  // 优先用 config 里指定的 homeHero；留空则取第一张照片
+  // 优先用 config 里指定的 homeHero；留空则取内置相册第一张（云存储直链，无需后端）
   fetchHero() {
     if (ASSETS.homeHero) {
       this.setData({ hero: ASSET_BASE + ASSETS.homeHero });
       return;
     }
-    request({
-      url: `${API_BASE}/api/photos`,
-      method: 'GET',
-      timeout: 8000,
-      success: (res) => {
-        const d = res.data && res.data.data;
-        const url = (res.data && res.data.code === 0 && Array.isArray(d) && d.length > 0)
-          ? d[0].url
-          : FALLBACK_HERO;
-        this.setData({ hero: url });
-      },
-      fail: () => this.setData({ hero: FALLBACK_HERO })
-    });
+    const g = LOCAL_PHOTO_GROUPS[0];
+    this.setData({ hero: (g && g.urls && g.urls[0]) || '' });
   },
 
-  // ========== 相册预览条 ==========
-  // 取前 6 张照片做横向预览（失败时静默用兜底图）
   // ========== 倒计时 ==========
   initCountdown() {
     const target = parseWeddingDate(WEDDING.date);

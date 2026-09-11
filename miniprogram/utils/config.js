@@ -11,6 +11,10 @@ module.exports = {
   // 微信云托管环境 ID（wx.cloud.callContainer 官方通道：免合法域名/免备案/免证书）
   CLOUD_ENV: 'prod-d1gxeb1e1cb3d88a0',
 
+  // 云托管服务名称（云托管控制台-服务列表第一列），以 X-WX-SERVICE 传给网关；
+  // 环境内只有一个服务时可留空 ''，多个服务时必须填，否则网关无法路由
+  CLOUD_SERVICE: 'flask-2xaf',
+
   // 云存储素材域名（所有图片素材统一放云存储，本地包不放图片）
   ASSET_BASE: ASSET_HOST,
 
