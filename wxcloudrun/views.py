@@ -2,7 +2,7 @@ import hashlib
 import random
 import string
 import time
-from datetime import datetime, date, timedelta
+from datetime import datetime
 
 import requests
 from flask import render_template, request
@@ -10,8 +10,7 @@ from flask import render_template, request
 from run import app
 from wxcloudrun import db
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
-from wxcloudrun.dao import query_weight_by_date, query_weights_since, insert_weight, delete_weight_byid
-from wxcloudrun.model import Counters, Blessing, Rsvp, Visit, Weights
+from wxcloudrun.model import Counters, Blessing, Rsvp, Visit
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 
 
@@ -437,123 +436,3 @@ def visit_stats():
         return make_err_response(str(e))
     return make_succ_response({'total': total or 0, 'unique': unique or 0})
 
-
-# ========== 体重日记（个人使用，环境共享下仅自己的两个小程序可调） ==========
-
-_WEIGHT_MIN = 20.0
-_WEIGHT_MAX = 300.0
-
-
-def _parse_date_str(s, default_date):
-    """
-    把 YYYY-MM-DD 字符串解析为 date；非法或缺省时返回 default_date
-    """
-    s = (s or '').strip()
-    if not s:
-        return default_date
-    try:
-        return datetime.strptime(s, '%Y-%m-%d').date()
-    except ValueError:
-        return default_date
-
-
-def _weight_item(w, prev_weight):
-    """
-    单条记录转 dict，附带与前一记录的环比差值（一位小数）
-    """
-    diff = None
-    if prev_weight is not None:
-        diff = round(w.weight - prev_weight, 1)
-    return {
-        'id': w.id,
-        'date': w.date.strftime('%Y-%m-%d'),
-        'weight': round(w.weight, 1),
-        'diff': diff,
-    }
-
-
-@app.route('/api/weight', methods=['POST'])
-def save_weight():
-    """
-    保存体重（同一天重复保存即覆盖）
-    :param weight: 体重 kg，20-300，一位小数
-    :param date: 可选，YYYY-MM-DD，缺省今天
-    """
-    body = request.get_json(silent=True) or {}
-    try:
-        weight = round(float(body.get('weight')), 1)
-    except (TypeError, ValueError):
-        return make_err_response('请输入有效的体重数值')
-    if not (_WEIGHT_MIN <= weight <= _WEIGHT_MAX):
-        return make_err_response('体重需在 %.0f-%.0f kg 之间' % (_WEIGHT_MIN, _WEIGHT_MAX))
-
-    d = _parse_date_str(body.get('date'), date.today())
-    now = datetime.now()
-    try:
-        existing = query_weight_by_date(d)
-        if existing is not None:
-            existing.weight = weight
-            existing.updated_at = now
-            db.session.commit()
-            return make_succ_response({'id': existing.id, 'date': d.strftime('%Y-%m-%d'),
-                                       'weight': weight, 'created': False})
-        w = Weights(date=d, weight=weight, created_at=now, updated_at=now)
-        if not insert_weight(w):
-            return make_err_response('保存失败，请稍后再试')
-        return make_succ_response({'id': w.id, 'date': d.strftime('%Y-%m-%d'),
-                                   'weight': weight, 'created': True})
-    except Exception as e:
-        db.session.rollback()
-        return make_err_response(str(e))
-
-
-@app.route('/api/weight/list', methods=['GET'])
-def list_weights():
-    """
-    体重记录列表（按日期升序，含环比差值）
-    :param days: 可选，最近 N 天（按日期过滤，非记录条数）；0 或缺省表示全部
-    """
-    try:
-        days = int(request.args.get('days', 0))
-    except ValueError:
-        days = 0
-    start = None
-    if days and days > 0:
-        start = date.today() - timedelta(days=days - 1)
-    try:
-        rows = query_weights_since(start)
-    except Exception as e:
-        return make_err_response(str(e))
-    items = []
-    prev = None
-    for w in rows:
-        items.append(_weight_item(w, prev))
-        prev = w.weight
-    latest = items[-1] if items else None
-    return make_succ_response({'items': items, 'latest': latest})
-
-
-@app.route('/api/weight/<int:wid>', methods=['DELETE'])
-def remove_weight(wid):
-    """
-    删除一条体重记录
-    """
-    try:
-        if delete_weight_byid(wid):
-            return make_succ_empty_response()
-        return make_err_response('记录不存在')
-    except Exception as e:
-        return make_err_response(str(e))
-
-
-@app.route('/api/weight/export', methods=['GET'])
-def export_weights():
-    """
-    导出全部体重记录 JSON（备份用）
-    """
-    try:
-        rows = query_weights_since(None)
-    except Exception as e:
-        return make_err_response(str(e))
-    return make_succ_response([{'date': w.date.strftime('%Y-%m-%d'),
-                                'weight': round(w.weight, 1)} for w in rows])
