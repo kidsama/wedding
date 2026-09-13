@@ -6,7 +6,7 @@
       <view class="al-card" wx:for="{{albums}}" wx:key="index"
             data-index="{{index}}" bindtap="openAlbum" hover-class="al-card-hover">
         <view class="al-cover-wrap">
-          <image wx:if="{{item.cover}}" class="al-cover" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}" />
+          <image wx:if="{{item.coverThumb}}" class="al-cover" src="{{item.coverThumb}}" mode="aspectFill" lazy-load="{{true}}" />
           <!-- 空相册占位封面（如「婚礼现场」） -->
           <view wx:else class="al-cover al-cover-empty">
             <view class="al-empty-icon">📷</view>
@@ -33,7 +33,7 @@
     <view class="al-grid">
       <view class="al-item" wx:for="{{currentPhotos}}" wx:key="index"
             data-index="{{index}}" bindtap="onPhotoTap" hover-class="al-hover">
-        <image class="al-img" src="{{item.url}}" mode="aspectFill" lazy-load="{{true}}" />
+        <image class="al-img" src="{{item.thumb}}" mode="aspectFill" lazy-load="{{true}}" />
       </view>
     </view>
 

@@ -1,4 +1,10 @@
 const { LOCAL_PHOTO_GROUPS } = require('../../utils/photos');
+const { thumbUrl } = require('../../utils/common');
+
+// 展示用缩略宽度：网格 400x（3 列布局单格最大约 345 物理像素，余量充足）、封面 600x
+// （原图仅在 previewImage 大图预览时加载）
+const THUMB_GRID = 400;
+const THUMB_COVER = 600;
 
 // 各相册子标题（按相册名匹配，未匹配到用默认文案）
 const ALBUM_SUBTITLES = {
@@ -33,13 +39,18 @@ Page({
   },
 
   applyAlbums(albums) {
-    // 统一结构：{ name, cover, count, subtitle, photos: [{url}] }
+    // 统一结构：{ name, coverThumb, count, subtitle, photos: [{url, thumb}] }
+    // url=原图（大图预览用），thumb=缩略图（网格展示用，省 CDN 流量）
     const list = albums.map((a, i) => {
-      const photos = (a.photos || []).map((p) => (typeof p === 'string' ? { url: p } : p));
+      const photos = (a.photos || []).map((p) => {
+        const o = typeof p === 'string' ? { url: p } : p;
+        return { ...o, thumb: thumbUrl(o.url, THUMB_GRID) };
+      });
       const name = a.name || `相册${i + 1}`;
+      const cover = a.cover || (photos[0] && photos[0].url) || '';
       return {
         name,
-        cover: a.cover || (photos[0] && photos[0].url) || '',
+        coverThumb: thumbUrl(cover, THUMB_COVER),
         count: photos.length,
         subtitle: ALBUM_SUBTITLES[name] || DEFAULT_SUBTITLE,
         photos

@@ -7,7 +7,7 @@
   </view>
 
   <!-- 背景音乐按钮（top 由胶囊位置动态计算，避免被「…/关闭」挡住） -->
-  <view class="music {{musicPlaying ? 'music-playing' : ''}}" style="{{musicTop ? 'top:' + musicTop : ''}}" wx:if="{{wedding.musicUrl}}" bindtap="toggleMusic">
+  <view class="music {{musicPlaying ? 'music-playing' : ''}}" style="{{musicTop ? 'top:' + musicTop : ''}}" wx:if="{{wedding.musicUrls.length}}" bindtap="toggleMusic">
     <image class="music-icon" src="{{icons.musicOn}}" mode="aspectFit" />
   </view>
 
@@ -48,6 +48,30 @@
     <view class="lt-mark">”</view>
   </view>
 
+  <!-- 打开邀请函（悬浮信封入口，直达经典版请柬） -->
+  <view class="open-inv" bindtap="openInvite" hover-class="open-inv-hover">
+    <view class="oi-stage">
+      <view class="oi-spark oi-spark-a">♡</view>
+      <view class="oi-spark oi-spark-b">✦</view>
+      <view class="oi-spark oi-spark-c">♡</view>
+      <!-- 信封：外壳做上下悬浮，本体做左右轻摇，两级动画叠加出“飘着”的感觉 -->
+      <view class="oi-env">
+        <view class="oi-env-body">
+          <view class="oi-env-flap"></view>
+          <view class="oi-env-fold"></view>
+          <view class="oi-seal">
+            <view class="oi-seal-hi"></view>
+            <view class="oi-seal-ring"></view>
+            <image class="oi-seal-heart" src="{{heartIcon}}" mode="aspectFit" />
+          </view>
+        </view>
+      </view>
+      <view class="oi-shadow"></view>
+    </view>
+    <view class="oi-title">点击打开邀请函</view>
+    <view class="oi-sub">TAP TO OPEN · 轻触信封开启</view>
+  </view>
+
   <!-- 接下来做什么 NEXT STEPS -->
   <view class="steps">
     <view class="st-title-row">
@@ -82,4 +106,10 @@
     <view class="ft-text">祝有爱者更爱，独立者更自由。</view>
     <view class="ft-year">· {{ftYear}} ·</view>
   </view>
+</view>
+
+<!-- 首屏底部双箭头滑动提示：轻微浮动引导下滑，滚动后淡出且不再出现 -->
+<view class="scroll-hint {{hintGone ? 'sh-gone' : ''}}">
+  <view class="sh-chev sh-a"></view>
+  <view class="sh-chev sh-b"></view>
 </view>

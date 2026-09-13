@@ -11,41 +11,13 @@
     <view class="petal p7"></view>
   </view>
 
-  <!-- ========== 列表模式：选择一封邀请函 ========== -->
-  <block wx:if="{{mode === 'list'}}">
-    <view class="ivl">
-      <view class="ivl-head">
-        <view class="ivl-line"></view>
-        <view class="ivl-title">邀 请 函</view>
-        <view class="ivl-line"></view>
-      </view>
-      <view class="ivl-sub">INVITATIONS · 共 {{invitations.length}} 封</view>
-
-      <view class="ivl-card" wx:for="{{invitations}}" wx:key="id" hover-class="ivl-card-hover" bindtap="openInvite" data-id="{{item.id}}">
-        <view class="ivl-cover-wrap">
-          <image class="ivl-cover" src="{{item.cover}}" mode="aspectFill" />
-        </view>
-        <view class="ivl-info">
-          <view class="ivl-name">{{item.name}}</view>
-          <view class="ivl-desc">{{item.desc}}</view>
-          <view class="ivl-open">打 开 <text class="ivl-arrow">›</text></view>
-        </view>
-      </view>
-
-      <view class="ivl-foot">— 选择一封邀请函打开 —</view>
-    </view>
-  </block>
-
-  <!-- ========== 详情模式：具体请柬（原八屏翻页） ========== -->
-  <block wx:else>
+  <!-- ========== 请柬详情（经典版长页；由首页「打开邀请函」直达） ========== -->
+  <block>
 
   <!-- 背景音乐按钮 -->
   <view class="music {{musicPlaying ? 'music-playing' : ''}}" style="{{musicTop ? 'top:' + musicTop : ''}}" wx:if="{{wedding.musicUrl}}" catchtap="toggleMusic">
     <image class="music-icon" src="{{icons.musicOn}}" mode="aspectFit" />
   </view>
-
-  <!-- 返回邀请函列表 -->
-  <view class="back-btn" bindtap="backToInvList">‹ 邀请函列表</view>
 
   <!-- ========== 经典版：整页长图请柬（缓慢自动上滚） ========== -->
   <block wx:if="{{layout === 'long'}}">
@@ -66,6 +38,13 @@
         <image class="cover-title-img" src="{{coverTitle}}" mode="aspectFit" />
         <image class="cover-illus" src="{{coverIllus}}" mode="aspectFit" />
         <view class="cover-en">We are getting married!</view>
+      </view>
+
+      <!-- S6b 开头问候（前半段；后半段在尾页 s6b-end） -->
+      <view class="sec s6b reveal {{revealed.s6b ? 'on' : ''}}" data-sec="s6b">
+        <view class="s6b-line">hi~亲爱的朋友~</view>
+        <view class="s6b-line">当收到这封请柬的时候</view>
+        <view class="s6b-line">我们的婚礼已经在倒计时啦</view>
       </view>
 
       <!-- ① 头部：新人头像 + 囍 + 姓名 -->
@@ -129,31 +108,6 @@
           <view wx:else class="ph-box s1-pa">照片待补</view>
           <image wx:if="{{classic.story1b}}" class="s1-pb" src="{{classic.story1b}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.story1b}}" />
           <view wx:else class="ph-box s1-pb">照片待补</view>
-        </view>
-      </view>
-
-      <!-- S2 结婚啦 · 日历卡 -->
-      <view class="sec s2 reveal {{revealed.s2 ? 'on' : ''}}" data-sec="s2">
-        <view class="s2-quote">If I could rearrange the alphabet,</view>
-        <view class="s2-quote s2-quote2">I'd put U and I together.</view>
-        <view class="s2-wrap">
-          <image wx:if="{{classic.calendar}}" class="s2-img" src="{{classic.calendar}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.calendar}}" />
-          <view wx:else class="ph-box s2-ph">照片待补</view>
-          <view class="cal-card">
-            <image class="cal-xi" src="{{xiImg}}" mode="aspectFit" />
-            <view class="cal-top">
-              <text class="cal-date">{{cal.label}}</text>
-              <text class="cal-year">- {{cal.year}} -</text>
-            </view>
-            <view class="cal-week">
-              <text class="cal-wc" wx:for="{{['一','二','三','四','五','六','日']}}" wx:key="*this">{{item}}</text>
-            </view>
-            <view class="cal-grid">
-              <view class="cal-day" wx:for="{{cal.cells}}" wx:for-item="cell" wx:key="k">
-                <view wx:if="{{cell.d}}" class="cal-num {{cell.on ? 'on' : ''}}">{{cell.d}}</view>
-              </view>
-            </view>
-          </view>
         </view>
       </view>
 
@@ -252,7 +206,30 @@
         </view>
       </view>
 
-      <!-- S8 婚礼时间 -->
+      <!-- S2 日历卡（婚礼时间标题在日历图下方的时间详情块顶部） -->
+      <view class="sec s2 reveal {{revealed.s2 ? 'on' : ''}}" data-sec="s2">
+        <view class="s2-wrap">
+          <image wx:if="{{classic.calendar}}" class="s2-img" src="{{classic.calendar}}" mode="aspectFill" bindtap="onImgTap" data-src="{{classic.calendar}}" />
+          <view wx:else class="ph-box s2-ph">照片待补</view>
+          <view class="cal-card">
+            <image class="cal-xi" src="{{xiImg}}" mode="aspectFit" />
+            <view class="cal-top">
+              <text class="cal-date">{{cal.label}}</text>
+              <text class="cal-year">- {{cal.year}} -</text>
+            </view>
+            <view class="cal-week">
+              <text class="cal-wc" wx:for="{{['一','二','三','四','五','六','日']}}" wx:key="*this">{{item}}</text>
+            </view>
+            <view class="cal-grid">
+              <view class="cal-day" wx:for="{{cal.cells}}" wx:for-item="cell" wx:key="k">
+                <view wx:if="{{cell.d}}" class="cal-num {{cell.on ? 'on' : ''}}">{{cell.d}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- S8 婚礼时间（标题在日历图下方 + 日期/农历/时刻） -->
       <view class="sec s8 reveal {{revealed.s8 ? 'on' : ''}}" data-sec="s8">
         <view class="s8-head">
           <view class="s8-t">婚 礼 时 间</view>
@@ -302,7 +279,15 @@
             已有 <text class="f10-num-r">{{rsvpStats.attending}}</text> 位亲友确认出席 · 共 <text class="f10-num-r">{{rsvpStats.guests}}</text> 人
           </view>
         </view>
-        <view class="s10-xi">囍</view>
+        <!-- S6b-end 致亲友的信（后半段，回执卡下方收尾） -->
+        <view class="s6b s6b-end reveal {{revealed.s6bEnd ? 'on' : ''}}" data-sec="s6bEnd">
+          <view class="s6b-eyebrow"><text class="s6b-el"></text>写 在 最 后<text class="s6b-el"></text></view>
+          <view class="s6b-line">以前觉得婚礼是一则官方公告</view>
+          <view class="s6b-line">现在才明白</view>
+          <view class="s6b-line">这是一场为数不多的相聚</view>
+          <view class="s6b-line">是久别重逢的欢喜</view>
+          <view class="s6b-line">是攒了很久的想念，终于有了见面的理由</view>
+        </view>
         <image class="s10-close-img" src="{{closeImg}}" mode="aspectFit" />
         <view class="s10-date">{{dateLong}} · {{wedding.venue}}</view>
       </view>
@@ -475,36 +460,9 @@
       </view>
     </swiper-item>
 
-    <!-- ⑥ 亲友祝福弹幕 -->
+    <!-- ⑥ 婚礼日程 + 到场回执 -->
     <swiper-item>
       <view class="pane {{current === 4 + chapters.length ? 'on' : ''}}">
-        <view class="pane-eyebrow">BEST WISHES</view>
-        <view class="section-title">亲 友 祝 福</view>
-        <view class="danmaku-box">
-          <view class="danmaku-lane lane-0">
-            <text class="dm-item" wx:for="{{danmakuLanes[0]}}" wx:key="index" wx:if="{{danmakuLanes[0].length}}">{{item}}</text>
-          </view>
-          <view class="danmaku-lane lane-1">
-            <text class="dm-item dm-alt" wx:for="{{danmakuLanes[1]}}" wx:key="index" wx:if="{{danmakuLanes[1].length}}">{{item}}</text>
-          </view>
-          <view class="danmaku-lane lane-2">
-            <text class="dm-item dm-warm" wx:for="{{danmakuLanes[2]}}" wx:key="index" wx:if="{{danmakuLanes[2].length}}">{{item}}</text>
-          </view>
-        </view>
-
-        <view class="bless-meta" wx:if="{{blessingTotal !== null}}">
-          已收到 <text class="bless-num">{{blessingTotal}}</text> 条祝福
-        </view>
-        <view class="visit-meta" wx:if="{{visitTotal !== null && visitTotal > 0}}">
-          已有 <text class="bless-num">{{visitTotal}}</text> 位亲友看过这份请柬
-        </view>
-        <button class="btn btn-red bless-btn" bindtap="openBlessModal">❤ 送上我的祝福</button>
-      </view>
-    </swiper-item>
-
-    <!-- ⑦ 婚礼日程 + 到场回执 -->
-    <swiper-item>
-      <view class="pane {{current === 5 + chapters.length ? 'on' : ''}}">
         <view class="pane-eyebrow">WEDDING DAY</view>
         <view class="section-title">婚 礼 日 程</view>
         <view class="timeline">
@@ -537,12 +495,16 @@
             已有 <text class="bless-num">{{rsvpStats.attending}}</text> 位亲友确认出席 · 共 <text class="bless-num">{{rsvpStats.guests}}</text> 人
           </view>
         </view>
+
+        <view class="visit-meta" wx:if="{{visitTotal !== null && visitTotal > 0}}">
+          已有 <text class="bless-num">{{visitTotal}}</text> 位亲友看过这份请柬
+        </view>
       </view>
     </swiper-item>
 
-    <!-- ⑧ 尾页 -->
+    <!-- ⑦ 尾页 -->
     <swiper-item>
-      <view class="pane pane-ending {{current === 6 + chapters.length ? 'on' : ''}}">
+      <view class="pane pane-ending {{current === 5 + chapters.length ? 'on' : ''}}">
         <view class="ending-mono">{{monogram}}</view>
         <view class="ending-names">{{wedding.groom}} & {{wedding.bride}}</view>
         <view class="ending-eyebrow">OUR WEDDING DAY</view>
@@ -554,17 +516,4 @@
   </swiper>
 
   </block>
-</view>
-
-<!-- 祝福弹窗 -->
-<view class="modal-mask" wx:if="{{showBlessModal}}" bindtap="closeBlessModal">
-  <view class="modal" catchtap="">
-    <view class="modal-title">送 上 祝 福</view>
-    <input class="modal-input" placeholder="怎么称呼您？（如：表哥）" maxlength="20" value="{{blessName}}" bindinput="onNameInput" />
-    <textarea class="modal-textarea" placeholder="写下您的祝福…（如：新婚快乐，百年好合！）" maxlength="100" value="{{blessText}}" bindinput="onTextInput" />
-    <view class="modal-btns">
-      <button class="btn btn-line" bindtap="closeBlessModal">取消</button>
-      <button class="btn btn-red" bindtap="submitBlessing">送出祝福</button>
-    </view>
-  </view>
 </view>

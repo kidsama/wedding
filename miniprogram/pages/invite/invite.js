@@ -1,26 +1,29 @@
 const { API_BASE, WEDDING, ASSET_BASE, ASSETS, INVITATIONS, CLASSIC_SLOTS } = require('../../utils/config');
 const { request } = require('../../utils/api');
 const music = require('../../utils/music');
-const { parseWeddingDate, pad, getVisitorKey } = require('../../utils/common');
+const { parseWeddingDate, pad, getVisitorKey, thumbUrl } = require('../../utils/common');
 
 // 云存储素材完整地址
 const ICONS = {
   musicOn: ASSET_BASE + ASSETS.musicOn
 };
 
-// 兜底照片列表（邀请函未配置 photos 时使用）
-const FALLBACK_PHOTOS = Array.from({ length: 12 }, (_, i) => ({
-  url: `https://picsum.photos/seed/${i + 1}/400/400`,
-  title: `照片 ${i + 1}`
-}));
+// 兜底照片列表（邀请函未配置 photos 时使用；外链无法缩略，thumb=url）
+const FALLBACK_PHOTOS = Array.from({ length: 12 }, (_, i) => {
+  const url = `https://picsum.photos/seed/${i + 1}/400/400`;
+  return { url, thumb: url, title: `照片 ${i + 1}` };
+});
 
 // 云存储照片目录（/图片压缩-小程序/，中文已 URL 编码）
 const PHOTO_DIR = '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/';
 
 // 经典版长页 S1-S10 槽位照片直链（值为空的槽位不生成，wxml 显示占位框）
+// 展示用 1200px 缩略（长页最大显示宽 ~1000 物理像素），onImgTap 预览同图足够清晰
 const CLASSIC_IMG = {};
 Object.keys(CLASSIC_SLOTS).forEach((k) => {
-  if (CLASSIC_SLOTS[k]) CLASSIC_IMG[k] = ASSET_BASE + PHOTO_DIR + encodeURIComponent(CLASSIC_SLOTS[k]);
+  if (CLASSIC_SLOTS[k]) {
+    CLASSIC_IMG[k] = thumbUrl(ASSET_BASE + PHOTO_DIR + encodeURIComponent(CLASSIC_SLOTS[k]), 1200);
+  }
 });
 
 // S2 日历卡：按婚礼日期生成当月月历（周一起始，婚礼日标红）
@@ -60,10 +63,14 @@ const MAP_MARKERS = [
 ];
 
 // 按邀请函配置的文件名生成照片直链列表（未配置则回退兜底图）
+// url=原图（previewImage 大图预览/分享卡用），thumb=1080px 缩略（页面展示用）
 function photosForInvite(inv) {
   const files = inv && inv.photos;
   if (!files || files.length === 0) return FALLBACK_PHOTOS;
-  return files.map((f) => ({ url: ASSET_BASE + PHOTO_DIR + encodeURIComponent(f), title: f }));
+  return files.map((f) => {
+    const url = ASSET_BASE + PHOTO_DIR + encodeURIComponent(f);
+    return { url, thumb: thumbUrl(url, 1080), title: f };
+  });
 }
 
 // 故事区六屏「杂志画册式」章节：遇见/四季/旅途/日常/决定/邀请
@@ -73,7 +80,7 @@ function buildChapters(list) {
   const take = (start, n) => {
     const out = [];
     for (let i = start; i < start + n && i < list.length; i++) {
-      out.push({ url: list[i].url, g: i });
+      out.push({ url: list[i].url, thumb: list[i].thumb || thumbUrl(list[i].url, 1080), g: i });
     }
     return out;
   };
@@ -134,16 +141,6 @@ function buildChapters(list) {
   ];
 }
 
-// 弹幕占位祝福（后端暂无数据时展示）
-const DEFAULT_BLESSINGS = [
-  { name: '亲友', message: '新婚快乐，百年好合！' },
-  { name: '亲友', message: '祝永结同心，白头偕老！' },
-  { name: '亲友', message: '愿你们永远幸福！' },
-  { name: '亲友', message: '佳偶天成，永浴爱河！' },
-  { name: '亲友', message: '祝爱情天长地久！' },
-  { name: '亲友', message: '幸福美满，早生贵子！' }
-];
-
 // 尾页花押：双方名字首字母
 const MONOGRAM = `${WEDDING.groom[0] || ''} & ${WEDDING.bride[0] || ''}`;
 
@@ -158,8 +155,8 @@ Page({
     headBride: ASSET_BASE + ASSETS.headBride, // 长页头部新娘头像（云存储直链）
     xiImg: ASSET_BASE + ASSETS.xiImg, // 长页头部囍字图（云存储直链）
     closeImg: ASSET_BASE + ASSETS.closeImg, // 长页尾页"好久不见 婚礼见"文字图（云存储直链）
-    // 列表 / 详情 两模式（像相册页：先选邀请函，点开看具体请柬）
-    mode: 'list',
+    // 直达详情模式（当前只保留经典版；首页「打开邀请函」直接进入本页）
+    mode: 'detail',
     invitations: INVITATIONS,
     currentInvite: null,
     current: 0,
@@ -177,7 +174,6 @@ Page({
       { k: 'w2', letters: [{ t: 'I' }, { t: 'n' }] },
       { k: 'w3', letters: [{ t: 'L' }, { t: 'o' }, { t: 'v' }, { t: 'e' }] }
     ],
-    welcomeLetters: ['W', 'E', 'L', 'C', 'O', 'M', 'E'],
     dateLong: DATE_LONG,
     timeShort: TIME_SHORT,
     mapMarkers: MAP_MARKERS,
@@ -185,12 +181,7 @@ Page({
     revealed: {},
     countdown: { d: '0', h: '00', m: '00', s: '00' },
     married: false,
-    danmakuLanes: [[], [], []],
-    blessingTotal: null,
     visitTotal: null,
-    showBlessModal: false,
-    blessName: '',
-    blessText: '',
     musicPlaying: false,
     // 到场回执
     rsvpAttend: null,      // null=未选择 true=参加 false=不参加
@@ -201,22 +192,16 @@ Page({
   },
 
   onLoad(options) {
-    // 通过分享卡片进入时，隐藏底部菜单栏，呈现全屏沉浸式请柬
-    this._shareEntry = !!(options && options.entry === 'share');
-    this._tabBarPending = this._shareEntry;
-    if (this._shareEntry) this.hideTabBarForShare();
-    // 分享链接可带邀请函 id（entry=share&id=xxx），直达对应邀请函详情
+    // 本页已从底部菜单栏移除（普通页面，天然全屏无菜单栏）；
+    // 无论从首页「打开邀请函」还是分享卡片进入，都直达请柬详情（当前只有经典版）
     const invId = options && options.id;
-    if (invId || this._shareEntry) {
-      this.openInviteById(invId);
-    }
+    this.openInviteById(invId);
     this._vk = getVisitorKey();
     this.setData({ musicPlaying: music.isPlaying() });
     this.placeMusicButton();
     this._unsubMusic = music.subscribe((p) => this.setData({ musicPlaying: p }));
     this.sendVisit();
     this.fetchVisitStats();
-    this.fetchBlessings();
     this.fetchRsvp();
     this.fetchRsvpStats();
     this.initCountdown();
@@ -240,19 +225,11 @@ Page({
   },
 
   onShow() {
-    // onLoad 里调用可能因时机过早未生效，首次 onShow 再补一次；
-    // 之后切 Tab 回来不再触发，避免把正常浏览时的菜单栏也藏掉
-    if (this._tabBarPending) this.hideTabBarForShare();
     // 长页模式：从大图预览/后台返回时恢复自动上滚
     if (this.data.layout === 'long' && this.data.mode === 'detail') {
       clearTimeout(this._startTimer);
       this._startTimer = setTimeout(() => this.startAutoScroll(), 1500);
     }
-  },
-
-  hideTabBarForShare() {
-    this._tabBarPending = false;
-    wx.hideTabBar({ animation: false, fail: () => {} });
   },
 
   onHide() {
@@ -266,11 +243,7 @@ Page({
     this.leaveLongMode();
   },
 
-  // ========== 邀请函列表 / 详情切换 ==========
-  openInvite(e) {
-    this.openInviteById(e.currentTarget.dataset.id);
-  },
-
+  // ========== 进入请柬详情 ==========
   openInviteById(id) {
     const list = this.data.invitations || [];
     const inv = list.find((i) => i.id === id) || list[0];
@@ -281,22 +254,16 @@ Page({
       current: 0,
       layout: inv.layout === 'long' ? 'long' : 'swiper',
       revealed: {},
-      heroLong: inv.hero ? ASSET_BASE + inv.hero : '',
+      heroLong: inv.hero ? thumbUrl(ASSET_BASE + inv.hero, 1200) : '',
       classicRsvpDone: false
     });
     // 每封邀请函用自己的十几张照片：六屏杂志式章节 + 幸福瞬间网格共用
     this.applyPhotos(photosForInvite(inv));
     // 导航标题不带邀请函名（「经典版」等内部命名不展示给宾客）
-    wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: '邀请函' });
+    wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: '许久未见，甚是想念' });
     // 经典版长页：滚动渐显 + 缓慢自动上滚；其余邀请函维持整屏翻页
     if (this.data.layout === 'long') this.enterLongMode();
     else this.leaveLongMode();
-  },
-
-  backToInvList() {
-    this.leaveLongMode();
-    this.setData({ mode: 'list', currentInvite: null, current: 0 });
-    wx.setNavigationBarTitle && wx.setNavigationBarTitle({ title: '婚礼邀请函' });
   },
 
   // 翻页追踪：驱动各屏入场渐显动画
@@ -397,7 +364,7 @@ Page({
     // 兜底：观察器异常时直接全部显示，避免内容被 opacity:0 卡住
     setTimeout(() => {
       if (this.data.layout !== 'long' || Object.keys(this.data.revealed).length > 0) return;
-      const all = { h0: true, h1: true, h2: true, h3: true, s1: true, s2: true, s3: true, s4: true, s5: true, s6: true, s7: true, s8: true, s9: true, s10: true };
+      const all = { h0: true, h1: true, h2: true, h3: true, s1: true, s2: true, s3: true, s4: true, s5: true, s6: true, s6b: true, s6bEnd: true, s7: true, s8: true, s9: true, s10: true };
       (this.data.chapters || []).forEach((c, i) => { all['c' + i] = true; });
       this.setData({ revealed: all });
     }, 1200);
@@ -610,77 +577,6 @@ Page({
       content: `${venue}\n${address}`,
       showCancel: false,
       confirmText: '知道了'
-    });
-  },
-
-  // ========== 亲友祝福（弹幕） ==========
-  fetchBlessings() {
-    request({
-      url: `${API_BASE}/api/blessings`,
-      method: 'GET',
-      timeout: 8000,
-      success: (res) => {
-        const data = res.data && res.data.data;
-        if (res.data && res.data.code === 0 && data) {
-          this.applyBlessings(data.items || [], data.total || 0);
-        }
-      }
-    });
-  },
-
-  applyBlessings(items, total) {
-    const list = items.length > 0
-      ? items.map((b) => ({ name: b.name, message: b.message }))
-      : DEFAULT_BLESSINGS;
-
-    // 分 3 条弹幕轨道，循环滚动
-    const lanes = [[], [], []];
-    list.forEach((b, i) => {
-      lanes[i % 3].push(`${b.name}：${b.message}`);
-    });
-    this.setData({ danmakuLanes: lanes, blessingTotal: items.length > 0 ? total : null });
-  },
-
-  openBlessModal() {
-    this.pauseAuto(600000); // 弹窗填写期间暂停自动上滚
-    this.setData({ showBlessModal: true, blessName: '', blessText: '' });
-  },
-
-  closeBlessModal() {
-    this.pauseAuto(4000);
-    this.setData({ showBlessModal: false });
-  },
-
-  onNameInput(e) {
-    this.setData({ blessName: e.detail.value });
-  },
-
-  onTextInput(e) {
-    this.setData({ blessText: e.detail.value });
-  },
-
-  submitBlessing() {
-    const name = this.data.blessName.trim();
-    const message = this.data.blessText.trim();
-    if (!name) return wx.showToast({ title: '请填写您的称呼', icon: 'none' });
-    if (!message) return wx.showToast({ title: '请填写祝福语', icon: 'none' });
-
-    request({
-      url: `${API_BASE}/api/blessings`,
-      method: 'POST',
-      data: { name, message },
-      timeout: 8000,
-      success: (res) => {
-        if (res.data && res.data.code === 0) {
-          this.pauseAuto(4000);
-          this.setData({ showBlessModal: false });
-          wx.showToast({ title: '感谢您的祝福 ❤', icon: 'none' });
-          this.fetchBlessings();
-        } else {
-          wx.showToast({ title: (res.data && res.data.errorMsg) || '提交失败', icon: 'none' });
-        }
-      },
-      fail: () => wx.showToast({ title: '网络不太顺畅', icon: 'none' })
     });
   },
 

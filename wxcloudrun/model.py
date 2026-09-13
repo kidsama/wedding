@@ -57,3 +57,17 @@ class Visit(db.Model):
     visitor_key = db.Column(db.String(64), nullable=False, index=True)  # 前端生成的访客标识
     created_at = db.Column('createdAt', db.TIMESTAMP, nullable=False,
                            default=datetime.now, server_default=db.func.now())
+
+
+# 体重日记表（一天一条，date 唯一索引保证重复保存即覆盖）
+class Weights(db.Model):
+    __tablename__ = 'Weights'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False, unique=True)  # 记录日期（YYYY-MM-DD）
+    weight = db.Column(db.Float, nullable=False)            # 体重 kg，一位小数
+    created_at = db.Column('createdAt', db.TIMESTAMP, nullable=False,
+                           default=datetime.now, server_default=db.func.now())
+    updated_at = db.Column('updatedAt', db.TIMESTAMP, nullable=False,
+                           default=datetime.now, server_default=db.func.now(),
+                           onupdate=datetime.now)

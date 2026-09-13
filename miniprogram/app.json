@@ -25,12 +25,6 @@
         "selectedIconPath": "images/tab-home-on.png"
       },
       {
-        "pagePath": "pages/invite/invite",
-        "text": "邀请函",
-        "iconPath": "images/tab-invite.png",
-        "selectedIconPath": "images/tab-invite-on.png"
-      },
-      {
         "pagePath": "pages/album/album",
         "text": "相册",
         "iconPath": "images/tab-album.png",

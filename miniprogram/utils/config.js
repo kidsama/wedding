@@ -30,6 +30,9 @@ module.exports = {
     homeHero: '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/DSC09129.jpg'  // 首页海报大图（云存储对象路径，中文已 URL 编码 = /图片压缩-小程序/DSC09129.jpg；留空则自动用第一张照片）
   },
 
+  // 封蜡章中心的线条心图标（96×96 PNG 的 base64：米白细线描边、透明底；内联避免额外素材与网络依赖）
+  ICON_HEART: 'data:image/png;base64,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',
+
   // ========== 婚礼信息（必改） ==========
   WEDDING: {
     groom: '刘绍伟',          // 新郎名字
@@ -43,13 +46,18 @@ module.exports = {
     address: '河南省新乡市卫辉市太公路新县医院东',  // 酒店详细地址
     latitude: 35.388633,       // 酒店纬度（填了才能一键导航）
     longitude: 114.072949,     // 酒店经度
-    musicUrl: 'https://7072-prod-d1gxeb1e1cb3d88a0-1372364674.tcb.qcloud.la/ZhizizhishouJianjiban.mp3',
-    // 背景音乐：云存储直链（对象 /ZhizizhishouJianjiban.mp3，无签名可访问，InnerAudioContext 直接播放、无需域名白名单）
-    // （注意使用有版权授权的音乐；文件不存在时音乐按钮会自动隐藏）
+    // 背景音乐候选池：云存储直链（无签名可访问，InnerAudioContext 直接播放、无需域名白名单）
+    // 每次打开小程序随机播放其中一首；删减/新增直接改数组即可
+    musicUrls: [
+      'https://7072-prod-d1gxeb1e1cb3d88a0-1372364674.tcb.qcloud.la/ZhizizhishouJianjiban.mp3',
+      'https://7072-prod-d1gxeb1e1cb3d88a0-1372364674.tcb.qcloud.la/YuanyouhuiZhoujielun.mp3'
+    ],
+    musicFadeIn: 3,  // 背景音乐渐响时长（秒）：开场音量从 0 缓升到最大，避免第一秒炸耳；0=关闭
+    // （注意使用有版权授权的音乐；全部文件不存在时音乐按钮会自动隐藏）
 
     // 婚礼日程（时间线展示，钟点按实际安排改）
     schedule: [
-      { time: '10:30', label: '宾客入席' },
+      { time: '11:30', label: '宾客入席' },
       { time: '12:00', label: '婚礼仪式' },
       { time: '12:30', label: '喜宴开席' }
     ],
@@ -65,13 +73,12 @@ module.exports = {
     ],
 
     // 首页下滑区「邀请信」段落（与上面邀请函页的 invitation 分开，互不影响）
-    letter: '一起走过四季、晚风和人间琐碎，想到余生都有你，就对未来充满期待。从一时心动，到日久生定，我们决定并肩走剩下的路，从恋爱体验，正式升级为终身合伙人。请你来坐坐，见证我们最笨拙也最笃定的一刻。'
+    letter: '一起走过四季、晚风和人间琐碎，想到余生皆是彼此，就对未来充满期待。从一时心动，到日久生定，我们决定并肩走剩下的路，从恋爱身份，正式升级为终身合伙人。请你来坐坐，见证我们最笨拙也最笃定的一刻。'
   },
 
   // ========== 邀请函列表（邀请函 Tab 先展示卡片列表，点开查看具体请柬） ==========
-  // 新增邀请函往数组里加一项即可；cover 为云存储直链（中文已 URL 编码）
+  // 目前只保留「经典版」一封（首页「打开邀请函」直达本封）；如需多封往数组里加回即可
   // photos：本封邀请函展示的照片（云存储文件名，十几张为宜；故事区两两一屏 + 幸福瞬间网格共用）
-  // 想调整某封的照片：直接增删文件名即可，顺序即展示顺序
   INVITATIONS: [
     {
       id: 'classic',
@@ -84,28 +91,6 @@ module.exports = {
         'DSC09019.jpg', 'DSC09051.jpg', 'DSC09097.jpg', 'DSC09129.jpg',
         'DSC09152.jpg', 'DSC09175.jpg', 'DSC09209.jpg', 'DSC09232.jpg',
         'DSC09252.jpg', 'DSC09290.jpg', 'DSC09308.jpg', 'DSC09325.jpg'
-      ]
-    },
-    {
-      id: 'zhiy',
-      name: '致爱版',
-      desc: '致爱系列 · 温柔仪式感',
-      cover: ASSET_HOST + '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/DSC09316-%E8%87%B4%E7%88%B1%E6%91%86%E5%8F%B012%E5%AF%B8A.jpg',
-      photos: [
-        'DSC09021-致爱摆台横12寸.jpg', 'DSC09317.jpg', 'DSC09031-致爱摆台12寸A.jpg', 'DSC09106-致爱组合A50X50.jpg',
-        'DSC09070-致爱摆台横12寸.jpg', 'DSC09118-致爱组合A50X50.jpg', 'DSC09154-致爱组合B25X50.jpg', 'DSC09186-致爱组合A25X50.jpg',
-        'DSC09315-致爱组合B50X50.jpg', 'DSC09316-致爱摆台12寸A.jpg', 'DSC09318-致爱摆台12寸A.jpg', 'DSC09322-致爱组合B50X50.jpg'
-      ]
-    },
-    {
-      id: 'moments',
-      name: '浪漫瞬间',
-      desc: '婚纱照精选 · 定格美好',
-      cover: ASSET_HOST + '/%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-%E5%B0%8F%E7%A8%8B%E5%BA%8F/DSC09320.jpg',
-      photos: [
-        'DSC09020.jpg', 'DSC09037.jpg', 'DSC09064.jpg', 'DSC09095.jpg',
-        'DSC09100.jpg', 'DSC09123.jpg', 'DSC09134.jpg', 'DSC09146.jpg',
-        'DSC09163.jpg', 'DSC09182.jpg', 'DSC09217.jpg', 'DSC09243.jpg'
       ]
     }
   ],
@@ -124,7 +109,7 @@ module.exports = {
     keyword: 'DSC09209.jpg',   // S4 关键词：大图
     welcomeA: 'DSC09232.jpg',  // S5 WELCOME：高图
     welcomeB: 'DSC09235.jpg',  // S5 WELCOME：右图（3:2 横图）
-    dateA: 'DSC09290.jpg',     // S6 纵叠图·上
+    dateA: 'DSC09095.jpg',     // S6 纵叠图·上
     dateB: '',                 // S6 第二张图已删（仅保留 dateA 单图）
     countdown: 'DSC09312.jpg', // S7 倒计时：大图（3:2 横图）
     time: '',                  // S8 婚礼时间大图已删（不放图）

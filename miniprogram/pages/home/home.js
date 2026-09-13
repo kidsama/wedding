@@ -1,12 +1,13 @@
-const { WEDDING, ASSET_BASE, ASSETS } = require('../../utils/config');
+const { WEDDING, ASSET_BASE, ASSETS, ICON_HEART } = require('../../utils/config');
 const music = require('../../utils/music');
-const { parseWeddingDate, pad } = require('../../utils/common');
+const { parseWeddingDate, pad, thumbUrl } = require('../../utils/common');
 const { LOCAL_PHOTO_GROUPS } = require('../../utils/photos');
 
 Page({
   data: {
     wedding: WEDDING,
     icons: { musicOn: ASSET_BASE + ASSETS.musicOn },
+    heartIcon: ICON_HEART,   // 封蜡章中心的线条心（内联 base64 图标）
     hero: '',
     letterText: '',
     dateText: '',
@@ -14,7 +15,15 @@ Page({
     countdown: { d: '0', h: '00', m: '00', s: '00' },
     married: false,
     musicPlaying: false,
+    hintGone: false,   // 首屏底部双箭头滑动提示：滚动后淡出不再出现
     ftYear: (String(WEDDING.date).match(/^\d{4}/) || ['2026'])[0]
+  },
+
+  // 滑动超过 40px 后双箭头提示淡出，且本次页面不再出现
+  onPageScroll(e) {
+    if (!this.data.hintGone && e.scrollTop > 40) {
+      this.setData({ hintGone: true });
+    }
   },
 
   onLoad() {
@@ -59,13 +68,14 @@ Page({
 
   // ========== 首页海报大图 ==========
   // 优先用 config 里指定的 homeHero；留空则取内置相册第一张（云存储直链，无需后端）
+  // 海报按屏宽展示，1200px 缩略足够（原图仅在点击后的大图查看场景）
   fetchHero() {
     if (ASSETS.homeHero) {
-      this.setData({ hero: ASSET_BASE + ASSETS.homeHero });
+      this.setData({ hero: thumbUrl(ASSET_BASE + ASSETS.homeHero, 1200) });
       return;
     }
     const g = LOCAL_PHOTO_GROUPS[0];
-    this.setData({ hero: (g && g.urls && g.urls[0]) || '' });
+    this.setData({ hero: (g && g.urls && g.urls[0]) ? thumbUrl(g.urls[0], 1200) : '' });
   },
 
   // ========== 倒计时 ==========
@@ -117,6 +127,11 @@ Page({
   },
 
   // ========== 快捷入口 ==========
+  // 打开邀请函：直达经典版请柬长页（已从底部菜单栏移除，走普通页面跳转，返回用系统导航栏箭头）
+  openInvite() {
+    wx.navigateTo({ url: '/pages/invite/invite' });
+  },
+
   goAlbum() {
     wx.switchTab({ url: '/pages/album/album' });
   },

@@ -6,17 +6,55 @@ const { WEDDING } = require('./config');
 
 let audio = null;
 let playing = false;
+let fadeTimer = null;   // 渐响定时器
+let fadedIn = false;    // 本次会话是否已做过渐响（只在第一次播放时）
 const listeners = [];
 
+// 从候选池随机选一首（每次冷启动小程序抽一次，本次会话内固定）
+function pickSong() {
+  const pool = WEDDING.musicUrls || (WEDDING.musicUrl ? [WEDDING.musicUrl] : []);
+  if (!pool.length) return '';
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function clearFade() {
+  if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
+}
+
+// 渐响：音量从 0 线性升到 1（秒数取 config 的 musicFadeIn）
+function startFade(sec) {
+  clearFade();
+  const STEP = 50; // ms
+  const total = Math.max(1, Math.round(sec * 1000));
+  let elapsed = 0;
+  try { audio.volume = 0; } catch (e) { return; }
+  fadeTimer = setInterval(() => {
+    elapsed += STEP;
+    const v = Math.min(1, elapsed / total);
+    try { audio.volume = v; } catch (e) { clearFade(); return; }
+    if (v >= 1) clearFade();
+  }, STEP);
+}
+
 function ensureAudio() {
-  if (audio || !WEDDING.musicUrl) return audio;
+  if (audio) return audio;
+  const src = pickSong();
+  if (!src) return null;
   audio = wx.createInnerAudioContext();
-  audio.src = WEDDING.musicUrl;
+  audio.src = src;
   audio.loop = true;
-  audio.onPlay(() => setPlaying(true));
-  audio.onPause(() => setPlaying(false));
-  audio.onStop(() => setPlaying(false));
-  audio.onError(() => setPlaying(false));
+  audio.onPlay(() => {
+    setPlaying(true);
+    // 只在本次会话首次播放时渐响，暂停后恢复不重做
+    if (!fadedIn) {
+      fadedIn = true;
+      const sec = Number(WEDDING.musicFadeIn);
+      if (sec > 0) startFade(sec);
+    }
+  });
+  audio.onPause(() => { clearFade(); setPlaying(false); });
+  audio.onStop(() => { clearFade(); setPlaying(false); });
+  audio.onError(() => { clearFade(); setPlaying(false); });
   return audio;
 }
 

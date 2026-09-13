@@ -166,7 +166,7 @@ page {
 .venue {
   display: flex;
   align-items: center;
-  margin: 76rpx 36rpx 0;
+  margin: 56rpx 36rpx 0;
   padding: 34rpx 30rpx;
   background: #241d18;
   border-radius: 24rpx;
@@ -220,7 +220,7 @@ page {
 
 /* ---- 邀请信（引号排版，参考 IMG_6812） ---- */
 .letter {
-  margin-top: 90rpx;
+  margin-top: 64rpx;
   padding: 0 70rpx;
   text-align: center;
 }
@@ -242,10 +242,216 @@ page {
   text-align-last: center;
 }
 
+/* ========== 打开邀请函：悬浮信封入口 ========== */
+/* 信封与封蜡章全部 CSS 绘制（零素材依赖）；章中心的线条心为内联 base64 图标（config.ICON_HEART） */
+.open-inv {
+  display: block;
+  margin: 80rpx 36rpx 0;
+  padding: 10rpx 0;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.open-inv-hover {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+
+.oi-stage {
+  position: relative;
+  width: 100%;
+}
+
+/* 信封外壳：只负责整体上下悬浮 */
+.oi-env {
+  position: relative;
+  width: 360rpx;
+  height: 250rpx;
+  margin: 0 auto;
+  animation: envFloat 3.2s ease-in-out infinite;
+}
+
+/* 信封本体：奶油底 + 手绘感描边 + 左右轻摇 */
+.oi-env-body {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: 14rpx;
+  overflow: hidden;
+  background: linear-gradient(160deg, #fffdf8 0%, #fdf3e3 100%);
+  border: 3rpx solid #e9cda6;
+  box-shadow: inset 0 -10rpx 24rpx rgba(196, 152, 96, 0.12);
+  animation: envTilt 4.4s ease-in-out infinite;
+}
+
+/* 翻盖：顶部向下的三角 */
+.oi-env-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 48%;
+  background: linear-gradient(180deg, #f7e7d0 0%, #efd8b7 100%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 50% 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+/* 下部折面：V 形，与主体形成柔和色阶 */
+.oi-env-fold {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 62%;
+  background: #fbf2e3;
+  opacity: 0.92;
+  -webkit-clip-path: polygon(0 100%, 0 52%, 50% 96%, 100% 52%, 100% 100%);
+  clip-path: polygon(0 100%, 0 52%, 50% 96%, 100% 52%, 100% 100%);
+}
+
+/* 封蜡章：盖在翻盖尖端 */
+.oi-seal {
+  position: absolute;
+  top: 76rpx;
+  left: 50%;
+  z-index: 3;
+  box-sizing: border-box;
+  width: 96rpx;
+  height: 96rpx;
+  margin-left: -48rpx;
+  border-radius: 50%;
+  border: 1rpx solid rgba(255, 214, 198, 0.32);
+  background: radial-gradient(circle at 34% 26%, #f0664c 0%, #d7391f 44%, #b0220f 76%, #8d1608 100%);
+  box-shadow:
+    0 10rpx 20rpx rgba(150, 35, 15, 0.34),
+    inset 0 -7rpx 14rpx rgba(112, 18, 6, 0.4),
+    inset 0 5rpx 10rpx rgba(255, 196, 178, 0.3);
+  animation: sealPulse 2.8s ease-in-out infinite;
+}
+
+/* 左上方柔光：模拟蜡面反光 */
+.oi-seal-hi {
+  position: absolute;
+  left: 18%;
+  top: 11%;
+  width: 42%;
+  height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 228, 216, 0.6) 0%, rgba(255, 228, 216, 0) 72%);
+}
+
+/* 内圈：印章的圈边 */
+.oi-seal-ring {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  bottom: 12rpx;
+  left: 12rpx;
+  border: 1.5rpx solid rgba(255, 246, 235, 0.36);
+  border-radius: 50%;
+}
+
+/* 中心线条心：细线描边、不填充，克制干净 */
+.oi-seal-heart {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48rpx;
+  height: 48rpx;
+  margin-left: -24rpx;
+  margin-top: -24rpx;
+}
+
+/* 悬浮阴影：与信封浮动反相，制造离地感 */
+.oi-shadow {
+  width: 250rpx;
+  height: 26rpx;
+  margin: 26rpx auto 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(170, 130, 88, 0.38) 0%, rgba(170, 130, 88, 0) 72%);
+  animation: shadowFloat 3.2s ease-in-out infinite;
+}
+
+/* 飘浮的小心心 */
+.oi-spark {
+  position: absolute;
+  z-index: 2;
+  line-height: 1;
+  color: #e2402c;
+  opacity: 0;
+}
+
+.oi-spark-a {
+  left: 8%;
+  top: 40%;
+  font-size: 26rpx;
+  animation: sparkUp 3.8s ease-in-out infinite;
+}
+
+.oi-spark-b {
+  right: 10%;
+  top: 17%;
+  font-size: 20rpx;
+  animation: sparkUp 3.8s ease-in-out 1.3s infinite;
+}
+
+.oi-spark-c {
+  right: 15%;
+  bottom: 24%;
+  font-size: 30rpx;
+  animation: sparkUp 3.8s ease-in-out 2.5s infinite;
+}
+
+.oi-title {
+  margin-top: 30rpx;
+  text-align: center;
+  font-size: 38rpx;
+  font-weight: 600;
+  color: #e2402c;
+  letter-spacing: 8rpx;
+}
+
+.oi-sub {
+  margin-top: 12rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: #b0a28c;
+  letter-spacing: 4rpx;
+}
+
+@keyframes envFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18rpx); }
+}
+
+@keyframes envTilt {
+  0%, 100% { transform: rotate(-1.6deg); }
+  50% { transform: rotate(1.6deg); }
+}
+
+@keyframes shadowFloat {
+  0%, 100% { transform: scale(1); opacity: 0.92; }
+  50% { transform: scale(0.8); opacity: 0.58; }
+}
+
+/* 印章轻微起伏（带 -6deg 固定歪角，保留手工盖章的不规则感） */
+@keyframes sealPulse {
+  0%, 100% { transform: rotate(-6deg) scale(1); }
+  50% { transform: rotate(-6deg) scale(1.045); }
+}
+
+@keyframes sparkUp {
+  0% { opacity: 0; transform: translateY(12rpx) scale(0.7); }
+  25% { opacity: 0.9; }
+  70% { opacity: 0.45; }
+  100% { opacity: 0; transform: translateY(-46rpx) scale(1.05); }
+}
+
 /* ---- 接下来做什么 NEXT STEPS ---- */
 .steps {
-  margin-top: 110rpx;
+  margin-top: 72rpx;
   padding: 0 36rpx;
+  margin-bottom: 90rpx; /* 给底部双箭头滑动提示留出空间，避免重合 */
 }
 
 .st-title-row {
@@ -407,4 +613,46 @@ page {
 @keyframes rotate {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+
+
+/* ========== 首屏底部双箭头滑动提示 ========== */
+.scroll-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none; /* 永不挡点击 */
+  z-index: 6;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.scroll-hint.sh-gone {
+  opacity: 0;
+}
+
+.sh-chev {
+  width: 18rpx;
+  height: 18rpx;
+  border-right: 3rpx solid rgba(226, 64, 44, 0.38);
+  border-bottom: 3rpx solid rgba(226, 64, 44, 0.38);
+  transform: rotate(45deg);
+  animation: sh-bob 2s ease-in-out infinite;
+}
+
+/* 下面的箭头更淡，形成层次 */
+.sh-b {
+  margin-top: -14rpx;
+  border-right-color: rgba(226, 64, 44, 0.22);
+  border-bottom-color: rgba(226, 64, 44, 0.22);
+  animation-delay: 0.2s;
+}
+
+@keyframes sh-bob {
+  0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.55; }
+  50% { transform: rotate(45deg) translate(5rpx, 5rpx); opacity: 1; }
 }
